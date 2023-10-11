@@ -10,10 +10,10 @@ bcrypt = "*"
 openai = "*"
 celery = "*"
 djangorestframework = "*"
-psycopg2 = "*"
 ipython = "*"
 environs = "*"
 gunicorn = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 
