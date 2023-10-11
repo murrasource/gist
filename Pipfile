@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+html2text = "*"
+passlib = "*"
+bcrypt = "*"
+openai = "*"
+celery = "*"
+djangorestframework = "*"
+psycopg2 = "*"
+ipython = "*"
+environs = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"
