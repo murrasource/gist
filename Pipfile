@@ -15,6 +15,7 @@ environs = "*"
 gunicorn = "*"
 psycopg2-binary = "*"
 whitenoise = "*"
+markdown = "*"
 
 [dev-packages]
 

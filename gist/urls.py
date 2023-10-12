@@ -20,5 +20,6 @@ from processor.urls import url_patterns as processor_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api-auth/', include('rest_framework.urls')),
     path('processor/', include(processor_urls))
 ]

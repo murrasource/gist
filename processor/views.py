@@ -1,9 +1,12 @@
-from rest_framework.views import APIView
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
+from rest_framework.request import Request
 
-class NewMessageAPI(APIView):
-    def post(self, request):
-        print(request.POST)
-        print(request.body.decode())
-        return JsonResponse({'received': True})
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
+@api_view(['POST'])
+def new_message_api(request: Request):
+    print("Query Params:", request.query_params)
+    print("Data:", request.data)
+    return JsonResponse({'received': True})
