@@ -56,4 +56,5 @@ tzdata==2023.3; python_version >= '2'
 urllib3==2.0.6; python_version >= '3.7'
 vine==5.0.0; python_version >= '3.6'
 wcwidth==0.2.8
+whitenoise==6.6.0
 yarl==1.9.2; python_version >= '3.7'
