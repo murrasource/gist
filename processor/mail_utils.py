@@ -171,7 +171,12 @@ class Maildir:
 
     def get_message(self, uid: int):
         filename = self.read_uidlist().get(uid)
-        return self.get_messages().get(filename)
+        message = [option for option in self.get_messages().get(filename) if filename in option[0]]
+        if message:
+            return message[0][1]
+        else:
+            print(f'No file with name {filename} exists.')
+            raise InvalidMailPathException
 
     def get_message_path(self, filename: str):
         paths = [f'{m[1].get_subdir()}/{m[0]}' for m in self.maildir.items()]
