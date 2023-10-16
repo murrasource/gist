@@ -123,16 +123,8 @@ class Maildir:
         except InvalidMailPathException:
             print(f'Could not find a mailbox for user "{user}".')
 
-    def get_uidvailidity(self, path: str = None):
-        path = path if path else self.path
-        validate_mail_path(path)
-        if os.path.exists(path + 'dovecot-uidvalidity'):
-            with open(path + 'dovecot-uidvalidity', 'r') as file:
-                uidvalidity = file.read()
-                file.close()
-            return uidvalidity
-        else:
-            return None
+    def get_uidvailidity(self):
+        return self.read_uidlist().get('uidvalidity')
 
     def get_folders(self):
         return self.maildir.list_folders()
@@ -156,8 +148,11 @@ class Maildir:
     def read_uidlist(self):
         messages = {}
         with open(f'{self.path}/dovecot-uidlist', 'r') as uidlist:
-            entries = uidlist.readlines()[1:]
+            uidlist = uidlist.readlines()
+            header = uidlist[0]
+            entries = uidlist[1:]
             uidlist.close()
+        messages.update({'uidvalidity': str(header.split(' ')[1][1:])})
         for entry in entries:
             messages.update({int(entry.split(' ')[0]): entry.split(':')[-1].strip('\n')})
         if messages:
@@ -172,7 +167,8 @@ class Maildir:
             return []
 
     def get_message(self, uid: int):
-        return self.read_uidlist().get(uid)
+        filename = self.read_uidlist().get(uid)
+        return self.get_messages().get(filename)
 
     def get_message_path(self, filename: str):
         paths = [f'{m[1].get_subdir()}/{m[0]}' for m in self.maildir.items()]
@@ -186,6 +182,6 @@ def get_message(user: str, folder: str, uid: int, uidvalidity: str):
     mdir = Maildir(user)
     mdir.set_folder(folder)
     if mdir.get_uidvailidity() == uidvalidity:
-        return mdir.get_message(uid = uid)
+        return mdir.get_message(uid)
     else:
         raise InvalidMailPathException
