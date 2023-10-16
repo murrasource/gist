@@ -151,9 +151,9 @@ class Maildir:
     def read_uidlist(self):
         messages = {}
         with open(self.path + 'dovecot-uidlist', 'r') as uidlist:
-            uidlist = uidlist.readlines()
-            header = uidlist[0]
-            entries = uidlist[1:]
+            uids = uidlist.readlines()
+            header = uids[0]
+            entries = uids[1:]
             uidlist.close()
         messages.update({'uidvalidity': str(header.split(' ')[1][1:])})
         for entry in entries:
