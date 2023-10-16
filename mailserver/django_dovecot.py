@@ -52,9 +52,10 @@ def on_user_init(sender, **kwargs):
         account = Account.objects.get_or_create(user=user)[0]
         account.save()
         django_password = user.password
-        vu = VirtualUser.objects.get_or_create(account=account, domain=gist_domain, email=user.email, password=password_dovecot_format(django_password))[0]
+        vu = VirtualUser.objects.create(account=account, domain=gist_domain, email=user.email, password=password_dovecot_format(django_password)) if created else VirtualUser.objects.get(account=account)
+        vu.password = password_dovecot_format(django_password)
         vu.save()
-        va = VirtualAlias.objects.get_or_create(account=account, domain=jist_domain, source=f'{user.email.split("@")[0]}@jist.email', destination=user.email)[0]
+        va = VirtualAlias.objects.create(account=account, domain=jist_domain, source=f'{user.email.split("@")[0]}@jist.email', destination=user.email) if created else VirtualAlias.objects.get(account=account)
         va.save()
     if created and not settings.DEBUG:
         maildir = Maildir(user.email.split('@')[0])

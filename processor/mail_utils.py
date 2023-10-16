@@ -2,19 +2,35 @@ import html2text
 import mailbox
 from enum import Enum
 from django.conf import settings
+import os
+
+
+# Custom exception
+class InvalidMailPathException(Exception):
+    pass
+
+# Make sure the path is valid
+def validate_mail_path(path: str):
+    if not (os.path.exists(path) and path.startswith(settings.MAILDIR_PREFIX)):
+        return InvalidMailPathException
 
 # ex: 'sample@gist.email' -> 'sample'
 def get_user_from_address(address: str):
     return address.split('@')[0]
 
 # ex: '/var/vmail/gist.email/user/Maildir' or '/var/vmail/gist.email/user/Maildir/INBOX.Marketing/cur/1696304003.M382939P108930.gist,S=350,W=362'
-def get_maildir_path(user: str, folder: str = None, subdir: str = None, filename: str = None):
-    if not folder:
-        return f'{settings.MAILDIR_PREFIX}/{user}/{settings.MAILDIR_NAME}'
-    if folder and not (subdir and filename):
-        return f'{settings.MAILDIR_PREFIX}/{user}/{settings.MAILDIR_NAME}/{folder}'
-    if user and folder and subdir and filename:
-        return f'{settings.MAILDIR_PREFIX}/{user}/{settings.MAILDIR_NAME}/{folder}/{subdir}/{filename}'
+def get_maildir_path(user: str, folders: [str] = [], subdir: str = None, filename: str = None):
+    base = f'{settings.MAILDIR_PREFIX}/{user}/{settings.MAILDIR_NAME}/'
+    for i in range(0, len(folders)):
+        base += f'.{".".join(folders[0:i+1])}/'
+    if subdir:
+        base += f'{subdir}/'
+    if filename:
+        base += f'{filename}'
+    if os.path.exists(base):
+        return base
+    else:
+        raise Exception
 
 # Convert HTML email into plaintext to save on OpenAI tokens
 def extract_text(content):
@@ -47,15 +63,16 @@ class Message:
         self.to = self.message.get('To')
         self.sender = self.message.get('From')
         self.subject = self.message.get('Subject')
-        self.content = extract_text(self.message.get_payload())
+        content = self.message.get_payload() if type(self.message.get_payload()) == str else self.message.get_payload(i=0).as_string()
+        self.content = extract_text(content)
 
     def get_maildir(self, **kwargs):
         user = kwargs.get('user', self.user)
         folder = kwargs.get('folder', self.folder)
-        return mailbox.Maildir(get_maildir_path(user, folder))
+        return mailbox.Maildir(get_maildir_path(user, [folder]))
 
     def get_path(self):
-        return get_maildir_path(self.user, self.folder, self.message.get_subdir(), self.filename)
+        return get_maildir_path(self.user, [self.folder], self.message.get_subdir(), self.filename)
 
     def get_flags(self):
         return self.message.get_flags()
@@ -95,20 +112,30 @@ class Message:
 # Utility to explore and manipulate Maildir
 class Maildir:
     def __init__(self, user: str):
+        self.user: str = user
+        self.root: str = get_maildir_path(user)
+        self.path: str = self.root
+        self.foldername: str = self.path.removeprefix(self.root)
+        self.maildir: Maildir = Maildir(self.path)
+        self.current_folder = self.maildir
+        self.uidvalidity: int = self.get_uidvailidity(self.path)
         try:
-            self.user = user
-            self.path = get_maildir_path(user)
-            self.maildir = mailbox.Maildir(self.path, create=True)
-            self.current_folder = self.maildir
-        except:
-            print(f'There is no email registered to "{user}".')
+            validate_mail_path(self.path)
+        except InvalidMailPathException:
+            print(f'Could not find a mailbox for user "{user}".')
+
+    def get_uidvailidity(self, path: str):
+        with open(f'{path}/dovecot-uidvalidity', 'r') as file:
+            uidvalidity = file.read()
+            file.close()
+        return int(uidvalidity)
 
     def get_folders(self):
         return self.maildir.list_folders()
 
     def set_folder(self, foldername=None):
         if foldername in self.get_folders():
-            self.path = get_maildir_path(self.user, foldername)
+            self.path = get_maildir_path(self.user, [foldername])
             self.current_folder = self.maildir.get_folder(foldername)
         elif foldername is None:
             self.path = get_maildir_path(self.user)
@@ -121,10 +148,40 @@ class Maildir:
             if folder not in self.get_folders():
                 self.current_folder.add_folder(folder)
                 print(folder, end='')
-
-    def set_user(self, user):
-        self = self.__init__(user)
-
+    
+    def read_uidlist(self):
+        messages = {}
+        with open(f'{self.path}/dovecot-uidlist', 'r') as uidlist:
+            entries = uidlist.readlines()[1:]
+            uidlist.close()
+        for entry in entries:
+            messages.update({entry.split(' ')[0]: entry.split(':')[-1]})
+        if messages:
+            return messages
+        raise InvalidMailPathException
+    
     def get_messages(self):
-        foldername = self.path.split('/')[-1]
-        return [Message(self.user, foldername, message[0], message[1]) for message in self.current_folder.items()]
+        try:
+            foldername = self.path.split('/')[-1]
+            return [Message(self.user, foldername, message[0], message[1]) for message in self.current_folder.items()]
+        except FileNotFoundError:
+            return []
+        
+    def get_message(self, uid: int):
+        return self.read_uidlist().get(uid)
+
+    def get_message_path(self, filename: str):
+        paths = [f'{m[1].get_subdir()}/{m[0]}' for m in self.maildir.items()]
+        for path in paths:
+            if filename in path:
+                return f'{self.path}/{filename}'
+        raise InvalidMailPathException
+
+# Find the message reported by `push.lua` push notification
+def get_message(user: str, folder: str, uid: int, uidvalidity: int):
+    mdir = Maildir(user)
+    if mdir.get_uidvailidity() == uidvalidity:
+        mdir.set_folder(folder)
+        return mdir.get_message(uid = uid)
+    else:
+        raise InvalidMailPathException
