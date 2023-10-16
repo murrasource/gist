@@ -57,7 +57,7 @@ function dovecot_lua_notify_end_txn(context)
         local event = dovecot.event(context.event)
         event:set_name("lua_notify_mail_finished")
         reqbody = json.encode(msg)
-        event:log_debug(context.endpoint .. " - sending " .. reqbody)
+        event:log_info(context.endpoint .. " - sending " .. reqbody)
         local _, status, headers, statusline = https.request {
             method = "POST",
             url = context.endpoint,
