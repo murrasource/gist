@@ -112,23 +112,26 @@ class Message:
 # Utility to explore and manipulate Maildir
 class Maildir:
     def __init__(self, user: str):
-        self.user: str = user
-        self.root: str = get_maildir_path(user)
-        self.path: str = self.root
-        self.foldername: str = self.path.removeprefix(self.root)
-        self.maildir: mailbox.Maildir = mailbox.Maildir(self.path)
-        self.current_folder = self.maildir
-        self.uidvalidity: int = self.get_uidvailidity(self.path)
         try:
-            validate_mail_path(self.path)
+            self.user: str = user
+            self.root: str = get_maildir_path(user)
+            self.path: str = self.root
+            self.foldername: str = self.path.removeprefix(self.root)
+            self.maildir: mailbox.Maildir = mailbox.Maildir(self.path)
+            self.current_folder = self.maildir
+            self.uidvalidity: int = self.get_uidvailidity(self.path)
         except InvalidMailPathException:
             print(f'Could not find a mailbox for user "{user}".')
 
     def get_uidvailidity(self, path: str):
-        with open(path + 'dovecot-uidvalidity', 'r') as file:
-            uidvalidity = file.read()
-            file.close()
-        return int(uidvalidity)
+        validate_mail_path(self.path)
+        if os.path.exists(path + 'dovecot-uidvalidity'):
+            with open(path + 'dovecot-uidvalidity', 'r') as file:
+                uidvalidity = file.read()
+                file.close()
+            return int(uidvalidity)
+        else:
+            return None
 
     def get_folders(self):
         return self.maildir.list_folders()
