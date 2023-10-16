@@ -5,6 +5,7 @@ from rest_framework.request import Request
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from processor.mail_utils import get_message
+from processor.tasks import process_new_message
 
 @api_view(['POST'])
 def new_message_api(request: Request):
@@ -17,6 +18,7 @@ def new_message_api(request: Request):
         uidvalidity = request.POST.get('uidvalidity')
         message = get_message(user, folder, uid, uidvalidity)
         if message:
+            process_new_message(message)
             return JsonResponse({'received': True})
         else:
             return JsonResponse({'received': False})

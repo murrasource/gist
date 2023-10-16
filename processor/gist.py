@@ -1,6 +1,6 @@
 from django.conf import settings
 import django.utils.timezone as tz
-from processor.mail_utils import Maildir, Message, get_user_from_address
+from processor.mail_utils import Maildir, Message, get_username_from_address
 from mailserver.models import VirtualUser
 from processor.models import Email, EmailGist
 import json
@@ -58,37 +58,40 @@ def generate_email_gist(user: VirtualUser, message: Message):
             smtp_to     = user.account.get_report_destination(),
             smtp_from   = settings.GIST_REPORT_SENDER,
             location    = message.get_path()
-    )
+    )[0]
 
-    # Set API key
-    openai.api_key = settings.OPEN_AI_API_KEY
-
-    # Have ChatGPT give output in structured manner
-    response = openai.ChatCompletion.create(
-        model           = settings.OPENAI_LLM,
-        messages        = get_messages_json(message.content),
-        functions       = get_functions_json(get_user_from_address(user.email)),
-        function_call   = {"name": "generate_email_gist"},
-    )
-
-    # Get the response content
-    response_message = response["choices"][0]["message"]
-
-    # Select the arguments we need
-    function_args = json.loads(response_message["function_call"]["arguments"])
-    
-    # Update email and message to processed state
-    email.processed = tz.now()
     email.save()
-    message.mark_as_processed(folder=f'INBOX.{function_args.get("category")}')
 
-    # Use the arguments to generate our gist
-    return EmailGist.objects.create(
-        account=user.account,
-        email=email,
-        complete=(not function_args.get("action")),
-        action=function_args.get("action"),
-        category=function_args.get("category"),
-        sender=function_args.get("sender"),
-        gist=function_args.get("summary")
-    )
+    if settings.OPEN_AI_API_KEY and not settings.DEBUG:
+        # Set API key
+        openai.api_key = settings.OPEN_AI_API_KEY
+
+        # Have ChatGPT give output in structured manner
+        response = openai.ChatCompletion.create(
+            model           = settings.OPENAI_LLM,
+            messages        = get_messages_json(message.content),
+            functions       = get_functions_json(get_username_from_address(user.email)),
+            function_call   = {"name": "generate_email_gist"},
+        )
+
+        # Get the response content
+        response_message = response["choices"][0]["message"]
+
+        # Select the arguments we need
+        function_args = json.loads(response_message["function_call"]["arguments"])
+        
+        # Update email and message to processed state
+        email.processed = tz.now()
+        email.save()
+        message.mark_as_processed(folder=f'INBOX.{function_args.get("category")}')
+
+        # Use the arguments to generate our gist
+        return EmailGist.objects.create(
+            account=user.account,
+            email=email,
+            complete=(not function_args.get("action")),
+            action=function_args.get("action"),
+            category=function_args.get("category"),
+            sender=function_args.get("sender"),
+            gist=function_args.get("summary")
+        )

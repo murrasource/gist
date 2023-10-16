@@ -1,12 +1,12 @@
 from django.conf import settings
 from django.core.mail import send_mail
 import django.utils.timezone as tz
-from processor.mail_utils import get_user_from_address
+from processor.mail_utils import get_username_from_address
 from mailserver.models import Account
 from processor.models import EmailGist, EmailGistReport
 
 def get_report_path(report: EmailGistReport):
-    return f'{settings.GIST_REPORT_PREFIX}/{get_user_from_address(report.smtp_to)}/{settings.GIST_REPORT_FOLDER}/{report.generated}'
+    return f'{settings.GIST_REPORT_PREFIX}/{get_username_from_address(report.smtp_to)}/{settings.GIST_REPORT_FOLDER}/{report.generated}'
 
 def write_report_email(report: EmailGistReport):
     done = u'\u2714'

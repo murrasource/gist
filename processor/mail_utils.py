@@ -3,6 +3,8 @@ import mailbox
 from enum import Enum
 from django.conf import settings
 import os
+import base64
+from mailserver.models import VirtualUser
 
 
 # Custom exception
@@ -15,8 +17,12 @@ def validate_mail_path(path: str):
         return InvalidMailPathException
 
 # ex: 'sample@gist.email' -> 'sample'
-def get_user_from_address(address: str):
+def get_username_from_address(address: str):
     return address.split('@')[0]
+
+# ex: 'sample@gist.email' -> <mailserver.models.VirtualUser>
+def get_virtual_user_from_address(address: str):
+    return VirtualUser.objects.get(email=address)
 
 # ex: '/var/vmail/gist.email/user/Maildir' or '/var/vmail/gist.email/user/Maildir/INBOX.Marketing/cur/1696304003.M382939P108930.gist,S=350,W=362'
 def get_maildir_path(user: str, folders: [str] = [], subdir: str = None, filename: str = None):
@@ -31,15 +37,6 @@ def get_maildir_path(user: str, folders: [str] = [], subdir: str = None, filenam
         return base
     else:
         raise Exception
-
-# Convert HTML email into plaintext to save on OpenAI tokens
-def extract_text(content):
-    converter = html2text.HTML2Text()
-    converter.ignore_tables     = True
-    converter.ignore_links      = True
-    converter.ignore_images     = True
-    converter.ignore_emphasis   = True
-    return converter.handle(content)
 
 # Flags for messages (standard + GISTED & DELTE)
 class Flags(Enum):
@@ -63,8 +60,7 @@ class Message:
         self.to = self.message.get('To')
         self.sender = self.message.get('From')
         self.subject = self.message.get('Subject')
-        content = self.message.get_payload() if type(self.message.get_payload()) == str else self.message.get_payload(i=0).as_string()
-        self.content = extract_text(content)
+        self.content = self.extract_text()
 
     def get_maildir(self, **kwargs):
         user = kwargs.get('user', self.user)
@@ -108,6 +104,17 @@ class Message:
         self.message = new_message
         self.maildir = self.get_maildir()
         self.set_flags(Flags.GISTED)
+
+    # Convert HTML email into plaintext to save on OpenAI tokens
+    def extract_text(self):
+        converter = html2text.HTML2Text()
+        converter.ignore_links      = True
+        converter.ignore_images     = True
+        message = self.message if not self.message.is_multipart() else self.message.get_payload(i=0)
+        payload = message.get_payload()
+        if message.get('Content-Transfer-Encoding') == 'base64':
+            payload = base64.b64decode(payload).decode()
+        return converter.handle(payload)
 
 # Utility to explore and manipulate Maildir
 class Maildir:

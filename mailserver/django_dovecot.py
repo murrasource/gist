@@ -2,7 +2,7 @@ from passlib.hash import bcrypt
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from mailserver.models import User, Account, VirtualDomain, VirtualUser, VirtualAlias
-from processor.mail_utils import Maildir, Flags, get_user_from_address
+from processor.mail_utils import Maildir, Flags, get_username_from_address
 from django.conf import settings
 
 # Format a bcrypt hash in the dovecot format
@@ -66,7 +66,7 @@ def on_user_init(sender, **kwargs):
 def on_user_delete(sender, **kwargs):
     user = kwargs.get('instance', None)
     if user and not settings.DEBUG:
-        maildir = Maildir(get_user_from_address(user.email))
+        maildir = Maildir(get_username_from_address(user.email))
         for folder in maildir.get_folders():
             maildir.set_folder(folder)
             for message in maildir.get_messages():
