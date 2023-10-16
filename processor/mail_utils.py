@@ -116,7 +116,7 @@ class Maildir:
         self.root: str = get_maildir_path(user)
         self.path: str = self.root
         self.foldername: str = self.path.removeprefix(self.root)
-        self.maildir: Maildir = Maildir(self.path)
+        self.maildir: mailbox.Maildir = mailbox.Maildir(self.path)
         self.current_folder = self.maildir
         self.uidvalidity: int = self.get_uidvailidity(self.path)
         try:
@@ -148,7 +148,7 @@ class Maildir:
             if folder not in self.get_folders():
                 self.current_folder.add_folder(folder)
                 print(folder, end='')
-    
+
     def read_uidlist(self):
         messages = {}
         with open(f'{self.path}/dovecot-uidlist', 'r') as uidlist:
@@ -166,7 +166,7 @@ class Maildir:
             return [Message(self.user, foldername, message[0], message[1]) for message in self.current_folder.items()]
         except FileNotFoundError:
             return []
-        
+
     def get_message(self, uid: int):
         return self.read_uidlist().get(uid)
 
