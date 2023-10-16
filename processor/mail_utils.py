@@ -124,7 +124,10 @@ class Maildir:
             print(f'Could not find a mailbox for user "{user}".')
 
     def get_uidvailidity(self):
-        return self.read_uidlist().get('uidvalidity')
+        if os.path.exists(self.path + 'dovecot-uidlist'):
+            return self.read_uidlist().get('uidvalidity')
+        else:
+            return None
 
     def get_folders(self):
         return self.maildir.list_folders()
