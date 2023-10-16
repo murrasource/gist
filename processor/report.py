@@ -42,7 +42,7 @@ def write_report_email(report: EmailGistReport):
         content.write(html)
         content.close()
 
-def create_report_email(account: Account, gists: list(EmailGist)):
+def create_report_email(account: Account, gists: [EmailGist]):
     smtp_to = account.report_email
     report = EmailGistReport.objects.create(
         account=account,
@@ -64,7 +64,7 @@ def send_report_email(report: EmailGistReport):
         send_mail( subject, message, email_from, recipient_list )
     report.sent = tz.now()
 
-def report(account: Account, gists: list(EmailGist)):
+def report(account: Account, gists: [EmailGist]):
     if account.report_email:
         report = create_report_email(account, gists)
         send_report_email(report)
