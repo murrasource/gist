@@ -184,8 +184,8 @@ class Maildir:
 # Find the message reported by `push.lua` push notification
 def get_message(user: str, folder: str, uid: int, uidvalidity: int):
     mdir = Maildir(user)
+    mdir.set_folder(folder)
     if mdir.get_uidvailidity() == uidvalidity:
-        mdir.set_folder(folder)
         return mdir.get_message(uid = uid)
     else:
         raise InvalidMailPathException
