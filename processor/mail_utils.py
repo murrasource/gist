@@ -147,7 +147,7 @@ class Maildir:
 
     def read_uidlist(self):
         messages = {}
-        with open(f'{self.path}/dovecot-uidlist', 'r') as uidlist:
+        with open(self.path + 'dovecot-uidlist', 'r') as uidlist:
             uidlist = uidlist.readlines()
             header = uidlist[0]
             entries = uidlist[1:]
