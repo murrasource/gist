@@ -119,12 +119,13 @@ class Maildir:
             self.foldername: str = self.path.removeprefix(self.root)
             self.maildir: mailbox.Maildir = mailbox.Maildir(self.path)
             self.current_folder = self.maildir
-            self.uidvalidity: int = self.get_uidvailidity(self.path)
+            self.uidvalidity: int = self.get_uidvailidity()
         except InvalidMailPathException:
             print(f'Could not find a mailbox for user "{user}".')
 
-    def get_uidvailidity(self, path: str):
-        validate_mail_path(self.path)
+    def get_uidvailidity(self, path: str = None):
+        path = path if path else self.path
+        validate_mail_path(path)
         if os.path.exists(path + 'dovecot-uidvalidity'):
             with open(path + 'dovecot-uidvalidity', 'r') as file:
                 uidvalidity = file.read()
