@@ -119,7 +119,7 @@ class Maildir:
             self.foldername: str = self.path.removeprefix(self.root)
             self.maildir: mailbox.Maildir = mailbox.Maildir(self.path)
             self.current_folder = self.maildir
-            self.uidvalidity: int = self.get_uidvailidity()
+            self.uidvalidity: str = self.get_uidvailidity()
         except InvalidMailPathException:
             print(f'Could not find a mailbox for user "{user}".')
 
@@ -130,7 +130,7 @@ class Maildir:
             with open(path + 'dovecot-uidvalidity', 'r') as file:
                 uidvalidity = file.read()
                 file.close()
-            return int(uidvalidity)
+            return uidvalidity
         else:
             return None
 
@@ -182,7 +182,7 @@ class Maildir:
         raise InvalidMailPathException
 
 # Find the message reported by `push.lua` push notification
-def get_message(user: str, folder: str, uid: int, uidvalidity: int):
+def get_message(user: str, folder: str, uid: int, uidvalidity: str):
     mdir = Maildir(user)
     mdir.set_folder(folder)
     if mdir.get_uidvailidity() == uidvalidity:
