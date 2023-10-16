@@ -4,7 +4,7 @@ from rest_framework.request import Request
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from mail_utils import get_message
+from processor.mail_utils import get_message
 
 @api_view(['POST'])
 def new_message_api(request: Request):

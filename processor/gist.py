@@ -1,6 +1,6 @@
 from django.conf import settings
 import django.utils.timezone as tz
-from mail_utils import Maildir, Message, get_user_from_address
+from processor.mail_utils import Maildir, Message, get_user_from_address
 from mailserver.models import VirtualUser
 from processor.models import Email, EmailGist
 import json
