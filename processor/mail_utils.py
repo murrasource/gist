@@ -159,7 +159,7 @@ class Maildir:
             entries = uidlist.readlines()[1:]
             uidlist.close()
         for entry in entries:
-            messages.update({entry.split(' ')[0]: entry.split(':')[-1]})
+            messages.update({int(entry.split(' ')[0]): entry.split(':')[-1].strip('\n')})
         if messages:
             return messages
         raise InvalidMailPathException
