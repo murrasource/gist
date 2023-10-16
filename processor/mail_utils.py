@@ -125,7 +125,7 @@ class Maildir:
             print(f'Could not find a mailbox for user "{user}".')
 
     def get_uidvailidity(self, path: str):
-        with open(f'{path}/dovecot-uidvalidity', 'r') as file:
+        with open(path + 'dovecot-uidvalidity', 'r') as file:
             uidvalidity = file.read()
             file.close()
         return int(uidvalidity)
