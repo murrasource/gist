@@ -11,15 +11,15 @@ from processor.tasks import process_new_message
 def new_message_api(request: Request):
     event = request.POST.get('event')
     if event == 'MessageNew':
-        email_address = request.POST.get('to')
+        email_address = request.POST.get('to').split('<')[1].strip('>')
         user = email_address.split('@')[0]
         folder = request.POST.get('folder')
         uid = request.POST.get('uid')
         uidvalidity = request.POST.get('uidvalidity')
         message = get_message(user, folder, uid, uidvalidity)
-        if message:
-            process_new_message(message)
-            return JsonResponse({'received': True})
-        else:
-            return JsonResponse({'received': False})
+        return JsonResponse({'message': message})
+        # if message:
+        #     process_new_message(message)
+        # else:
+        #     return JsonResponse({'received': False})
     return JsonResponse({'received': False})
