@@ -15,11 +15,9 @@ def new_message_api(request: Request):
         user = email_address.split('@')[0]
         folder = request.POST.get('folder')
         uid = request.POST.get('uid')
-        uidvalidity = request.POST.get('uidvalidity')
+        uidvalidity = str(request.POST.get('uidvalidity'))
         message = get_message(user, folder, uid, uidvalidity)
-        return JsonResponse({'message': message})
-        # if message:
-        #     process_new_message(message)
-        # else:
-        #     return JsonResponse({'received': False})
+        if message:
+            process_new_message(message)
+            return JsonResponse({'received': True})
     return JsonResponse({'received': False})
