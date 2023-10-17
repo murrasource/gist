@@ -34,7 +34,7 @@ def get_maildir_path(user: str, folders: [str] = [], subdir: str = None, filenam
     if filename:
         base += f'{filename}'
     if info:
-        base +- f':{info}'
+        base += f':{info}'
     if os.path.exists(base):
         return base
     else:

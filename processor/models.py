@@ -6,7 +6,7 @@ class Email(models.Model):
     account     = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="emails")
     smtp_to     = models.ForeignKey(VirtualUser, on_delete=models.CASCADE, related_name="emails")
     smtp_from   = models.CharField(max_length=100)
-    location    = models.FilePathField(path=settings.MAILDIR_PREFIX)
+    location    = models.FilePathField(path=settings.MAILDIR_PREFIX, max_length=1000)
     received    = models.DateTimeField(auto_now_add=True)
     processed   = models.DateTimeField(null=True, default=None)
     
