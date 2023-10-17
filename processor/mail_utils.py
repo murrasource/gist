@@ -95,7 +95,8 @@ class Message:
         self.maildir = self.get_maildir()
 
     def mark_as_processed(self, **kwargs: str):
-        folder = kwargs.get('folder', self.folder)
+        folder = kwargs.get('folder', [self.folder])
+        get_maildir_path(self.user, folders=folder)
         if folder != self.folder:
             old_maildir = self.get_maildir()
             new_maildir = self.get_maildir(folder=folder)
