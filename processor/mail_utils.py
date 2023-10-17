@@ -27,8 +27,9 @@ def get_virtual_user_from_address(address: str):
 # ex: '/var/vmail/gist.email/user/Maildir' or '/var/vmail/gist.email/user/Maildir/INBOX.Marketing/cur/1696304003.M382939P108930.gist,S=350,W=362'
 def get_maildir_path(user: str, folders: [str] = [], subdir: str = None, filename: str = None, info: str = None):
     base = f'{settings.MAILDIR_PREFIX}/{user}/{settings.MAILDIR_NAME}/'
-    for i in range(0, len(folders)):
-        base += f'.{".".join(folders[0:i+1])}/'
+    if folders:
+        for i in range(0, len(folders)):
+            base += f'.{".".join(folders[0:i+1])}/'
     if subdir:
         base += f'{subdir}/'
     if filename:
@@ -68,7 +69,8 @@ class Message:
     def get_maildir(self, **kwargs):
         user = kwargs.get('user', self.user)
         folder = kwargs.get('folder', self.folder)
-        return mailbox.Maildir(get_maildir_path(user, [folder]))
+        path = get_maildir_path(user, [folder])
+        return mailbox.Maildir(path)
 
     def get_path(self):
         return get_maildir_path(self.user, [self.folder], self.message.get_subdir(), self.filename, self.message.get_info())
@@ -126,12 +128,16 @@ class Maildir:
             self.user: str = user
             self.root: str = get_maildir_path(user)
             self.path: str = self.root
-            self.foldername: str = self.path.removeprefix(self.root)
+            self.foldername: str = self.get_foldername()
             self.maildir: mailbox.Maildir = mailbox.Maildir(self.path)
             self.current_folder = self.maildir
             self.uidvalidity: str = self.get_uidvailidity()
         except InvalidMailPathException:
             print(f'Could not find a mailbox for user "{user}".')
+
+    def get_foldername(self):
+        self.foldername = self.path.removeprefix(self.root)
+        return self.foldername
 
     def get_uidvailidity(self):
         if os.path.exists(self.path + 'dovecot-uidlist'):
@@ -146,9 +152,11 @@ class Maildir:
         if foldername in self.get_folders():
             self.path = get_maildir_path(self.user, [foldername])
             self.current_folder = self.current_folder.get_folder(foldername)
+            self.get_foldername()
         elif foldername is None:
             self.path = get_maildir_path(self.user)
             self.current_folder = self.maildir
+            self.get_foldername()
         else:
             print(f'No folder "{foldername}" exists for {self.user}.')
 
