@@ -68,8 +68,8 @@ class Message:
 
     def get_maildir(self, **kwargs):
         user = kwargs.get('user', self.user)
-        folder = kwargs.get('folder', self.folder)
-        path = get_maildir_path(user, [folder])
+        folder = kwargs.get('folder', [self.folder])
+        path = get_maildir_path(user, folder)
         return mailbox.Maildir(path)
 
     def get_path(self):
