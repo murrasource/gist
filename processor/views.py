@@ -18,6 +18,6 @@ def new_message_api(request: Request):
         uidvalidity = str(request.POST.get('uidvalidity'))
         message = get_message(user, folder, uid, uidvalidity)
         if message:
-            process_new_message(message)
+            process_new_message.delay(message)
             return JsonResponse({'received': True})
     return JsonResponse({'received': False})
