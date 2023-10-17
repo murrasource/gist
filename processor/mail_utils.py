@@ -140,12 +140,12 @@ class Maildir:
             return None
 
     def get_folders(self):
-        return self.maildir.list_folders()
+        return self.current_folder.list_folders()
 
     def set_folder(self, foldername=None):
         if foldername in self.get_folders():
             self.path = get_maildir_path(self.user, [foldername])
-            self.current_folder = self.maildir.get_folder(foldername)
+            self.current_folder = self.current_folder.get_folder(foldername)
         elif foldername is None:
             self.path = get_maildir_path(self.user)
             self.current_folder = self.maildir
@@ -155,7 +155,7 @@ class Maildir:
     def add_folders(self, *folders):
         for folder in folders:
             if folder not in self.get_folders():
-                self.current_folder.add_folder(folder)
+                self.current_folder.add_folder(f'{self.foldername}.{folder}')
                 print(folder, end='')
 
     def read_uidlist(self):
@@ -192,7 +192,7 @@ class Maildir:
             raise InvalidMailPathException
 
     def get_message_path(self, filename: str):
-        paths = [f'{m[1].get_subdir()}/{m[0]}' for m in self.maildir.items()]
+        paths = [f'{m[1].get_subdir()}/{m[0]}' for m in self.current_folder.items()]
         for path in paths:
             if filename in path:
                 return f'{self.path}/{filename}'

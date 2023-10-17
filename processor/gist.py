@@ -80,10 +80,12 @@ def generate_email_gist(user: VirtualUser, message: Message):
         # Select the arguments we need
         function_args = json.loads(response_message["function_call"]["arguments"])
         
+        print('OpenAI response: ', function_args)
+
         # Update email and message to processed state
         email.processed = tz.now()
         email.save()
-        message.mark_as_processed(folder=f'INBOX.{function_args.get("category")}')
+        message.mark_as_processed(folder=['INBOX', function_args.get("category")])
 
         # Use the arguments to generate our gist
         return EmailGist.objects.create(
