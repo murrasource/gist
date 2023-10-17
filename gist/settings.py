@@ -162,7 +162,7 @@ DEFAULT_FOLDERS = [
 MAILDIR_PREFIX = '/var/vmail/gist.email'
 MAILDIR_NAME = 'Maildir'
 
-OPEN_AI_API_KEY = ""
+OPEN_AI_API_KEY = "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"
 OPENAI_LLM = "gpt-3.5-turbo-0613"
 OPENAI_SYSTEM_TUNER = "Your job is to categorize and summarize a user's emails in a format that is less than a sentence and actionable so, ideally, the user shouldn't have to read the full email."
 OPENAI_USER_PROMPT = "Categorize and summarize this email: \n\n"
