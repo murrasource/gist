@@ -25,7 +25,7 @@ def get_virtual_user_from_address(address: str):
     return VirtualUser.objects.get(email=address)
 
 # ex: '/var/vmail/gist.email/user/Maildir' or '/var/vmail/gist.email/user/Maildir/INBOX.Marketing/cur/1696304003.M382939P108930.gist,S=350,W=362'
-def get_maildir_path(user: str, folders: [str] = [], subdir: str = None, filename: str = None):
+def get_maildir_path(user: str, folders: [str] = [], subdir: str = None, filename: str = None, info: str = None):
     base = f'{settings.MAILDIR_PREFIX}/{user}/{settings.MAILDIR_NAME}/'
     for i in range(0, len(folders)):
         base += f'.{".".join(folders[0:i+1])}/'
@@ -33,10 +33,13 @@ def get_maildir_path(user: str, folders: [str] = [], subdir: str = None, filenam
         base += f'{subdir}/'
     if filename:
         base += f'{filename}'
+    if info:
+        base +- f':{info}'
     if os.path.exists(base):
         return base
     else:
-        raise Exception
+        print(f'File does not exist: {base}')
+        raise InvalidMailPathException
 
 # Flags for messages (standard + GISTED & DELTE)
 class Flags(Enum):
@@ -68,7 +71,7 @@ class Message:
         return mailbox.Maildir(get_maildir_path(user, [folder]))
 
     def get_path(self):
-        return get_maildir_path(self.user, [self.folder], self.message.get_subdir(), self.filename)
+        return get_maildir_path(self.user, [self.folder], self.message.get_subdir(), self.filename, self.message.get_info())
 
     def get_flags(self):
         return self.message.get_flags()
@@ -171,7 +174,7 @@ class Maildir:
 
     def get_messages(self):
         try:
-            foldername = self.path.split('/')[-1]
+            foldername = self.path.strip('/').split('/')[-1].strip('.')
             return [Message(self.user, foldername, message[0], message[1]) for message in self.current_folder.items()]
         except FileNotFoundError:
             return []
