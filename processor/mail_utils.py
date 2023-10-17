@@ -57,10 +57,8 @@ class Message:
         self.filename = filename
         self.message = message
         self.maildir = self.get_maildir()
-        to: str = self.message.get('To')
-        self.to = to.split('<')[1].strip('>')
-        sender: str = self.message.get('From')
-        self.sender = sender.split('<')[1].strip('>')
+        self.to = self.message.get('To')
+        self.sender = self.message.get('From')
         self.subject = self.message.get('Subject')
         self.content = self.extract_text()
 
