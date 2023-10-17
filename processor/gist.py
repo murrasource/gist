@@ -55,7 +55,7 @@ def generate_email_gist(user: VirtualUser, message: Message):
     # Create new Email object
     email = Email.objects.get_or_create(
             account     = user.account,
-            smtp_to     = message.to,
+            smtp_to     = user,
             smtp_from   = message.sender,
             location    = message.get_path()
     )[0]
