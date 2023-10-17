@@ -136,7 +136,7 @@ class Maildir:
             print(f'Could not find a mailbox for user "{user}".')
 
     def get_foldername(self):
-        self.foldername = self.path.removeprefix(self.root)
+        self.foldername = self.path.removeprefix(self.root).strip('/').strip('.')
         return self.foldername
 
     def get_uidvailidity(self):
