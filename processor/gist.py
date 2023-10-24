@@ -27,9 +27,9 @@ def get_functions_json(user: str):
             "description": "Construct a summary report of an email using the content category, sender, and a few word summary",
             "parameters": {
                 "type": "object",
-                "required": ["category", "sender", "summary"],
+                "required": ["action", "category", "sender", "summary"],
                 "properties": {
-                    "category": {
+                    "action": {
                         "type": "boolean",
                         "description": "True if the user needs to take action on this email, else false."
                     },
