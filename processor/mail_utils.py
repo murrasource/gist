@@ -180,7 +180,7 @@ class Maildir:
 
     def get_messages(self):
         try:
-            folders = [folder.strip('.') for folder in self.path.strip('/').split('/')]
+            folders = [folder.strip('.') for folder in self.path.removeprefix(self.root).strip('/').split('/')]
             return [Message(self.user, folders, message[0], message[1]) for message in self.current_folder.items()]
         except FileNotFoundError:
             return []
