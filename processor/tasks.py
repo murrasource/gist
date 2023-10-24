@@ -6,7 +6,8 @@ from processor.gist import generate_email_gist
 from processor.report import report
 
 @shared_task
-def process_new_message(message: mail_utils.Message):
+def process_new_message(user: str, folder: str, uid: int, uidvalidity: str):
+    message = mail_utils.get_message(user, folder, uid, uidvalidity)
     user: VirtualUser = mail_utils.get_virtual_user_from_address(message.to)
     if not message.has_flag(mail_utils.Flags.GISTED) and not settings.DEBUG:
         gist = generate_email_gist(user, message)
