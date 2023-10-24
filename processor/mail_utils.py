@@ -101,7 +101,6 @@ class Message:
             old_maildir = self.get_maildir()
             new_maildir = self.get_maildir(folder=folder)
             new_message = new_maildir.add(self.message)
-            new_maildir.update([(self.filename, new_message)])
             old_maildir.remove(self.message)
             self = self.__init__(self.user, folder, self.filename, new_message)
         new_message = self.message
@@ -117,6 +116,8 @@ class Message:
         converter.ignore_links      = True
         converter.ignore_images     = True
         message = self.message if not self.message.is_multipart() else self.message.get_payload(i=0)
+        while message.is_multipart():
+            message = message if not message.is_multipart() else message.get_payload(i=0)
         payload = message.get_payload()
         if message.get('Content-Transfer-Encoding') == 'base64':
             payload = base64.b64decode(payload).decode()
