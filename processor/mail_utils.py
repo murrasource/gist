@@ -99,7 +99,7 @@ class Message:
         if folder != self.folder:
             old_maildir = self.get_maildir()
             old_maildir.remove(self.filename)
-            new_maildir = self.get_maildir(folder)
+            new_maildir = self.get_maildir(*folder)
             filename = new_maildir.add(self.message)
             self.filename = filename
             self.maildir = new_maildir
