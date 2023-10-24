@@ -4,10 +4,12 @@ from mailserver.models import Account, VirtualUser
 from processor import mail_utils
 from processor.gist import generate_email_gist
 from processor.report import report
+import time
 
 @shared_task
 def process_new_message(user: str, folder: str, uid: int, uidvalidity: str):
     print(user, folder, str(uid), uidvalidity)
+    time.sleep(5)
     message = mail_utils.get_message(user, folder, uid, uidvalidity)
     user: VirtualUser = mail_utils.get_virtual_user_from_address(message.to)
     if message.has_flag(mail_utils.Flags.GISTED):

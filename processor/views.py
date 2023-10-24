@@ -16,8 +16,6 @@ def new_message_api(request: Request):
         folder: str = request.POST.get('folder')
         uid: int = int(request.POST.get('uid'))
         uidvalidity: str = str(request.POST.get('uidvalidity'))
-        message: Message = get_message(user, folder, uid, uidvalidity)
-        if message:
-            process_new_message(user, folder, uid, uidvalidity)
-            return JsonResponse({'received': True})
+        process_new_message.delay(user, folder, uid, uidvalidity)
+        return JsonResponse({'received': True})
     return JsonResponse({'received': False})
