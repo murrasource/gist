@@ -67,7 +67,8 @@ class Message:
         self.content = self.extract_text()
 
     def get_maildir(self, *folders):
-        path = get_maildir_path(self.user, folders=[*folders])
+        folders = [*folders] if folders else self.folder
+        path = get_maildir_path(self.user, folders=folders)
         return mailbox.Maildir(path)
 
     def get_path(self):
