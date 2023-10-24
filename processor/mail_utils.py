@@ -102,7 +102,8 @@ class Message:
             self.folder = folder
             self.maildir = self.get_maildir(folder=folder)
             self.filename = self.maildir.add(self.message)
-        new_message = self.message.set_subdir('cur')
+        new_message = self.message
+        new_message.set_subdir('cur')
         self.maildir.update([(self.filename, new_message)])
         self.message = new_message
         self.set_flags(Flags.GISTED)
