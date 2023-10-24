@@ -9,12 +9,17 @@ from processor.report import report
 def process_new_message(user: str, folder: str, uid: int, uidvalidity: str):
     message = mail_utils.get_message(user, folder, uid, uidvalidity)
     user: VirtualUser = mail_utils.get_virtual_user_from_address(message.to)
-    if not message.has_flag(mail_utils.Flags.GISTED) and not settings.DEBUG:
-        gist = generate_email_gist(user, message)
-        if gist:
-            message.mark_as_processed()
-            if gist.category == "MFA & Security Alerts" and gist.account.report_email:
-                report(gist.account, [gist])
+    if message.has_flag(mail_utils.Flags.GISTED):
+        print(f'Message with uid {uid} for user {user} already processed.')
+        return
+    if settings.DEBUG:
+        print(f'Not processing message with uid {uid} for user {user} because DEBUG=TRUE')
+        return
+    gist = generate_email_gist(user, message)
+    if gist:
+        message.mark_as_processed()
+        if gist.category == "MFA & Security Alerts" and gist.account.report_email:
+            report(gist.account, [gist])
 
 @shared_task
 def send_daily_gist_report(account: Account):

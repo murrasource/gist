@@ -89,7 +89,7 @@ def generate_email_gist(user: VirtualUser, message: Message):
         message.mark_as_processed(folder=['INBOX', function_args.get("category")])
 
         # Use the arguments to generate our gist
-        return EmailGist.objects.create(
+        gist = EmailGist.objects.create(
             account=user.account,
             email=email,
             complete=(not function_args.get("action")),
@@ -98,3 +98,7 @@ def generate_email_gist(user: VirtualUser, message: Message):
             sender=function_args.get("sender"),
             gist=function_args.get("summary")
         )
+
+        gist.save()
+
+        return gist
