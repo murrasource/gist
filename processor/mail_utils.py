@@ -55,7 +55,7 @@ class Flags(Enum):
 
 # Utility to explore and manipulate messages
 class Message:
-    def __init__(self, user: str, folder: str, filename: str, message: mailbox.MaildirMessage):
+    def __init__(self, user: str, folder: list, filename: str, message: mailbox.MaildirMessage):
         self.user = user
         self.folder = folder
         self.filename = filename
@@ -66,14 +66,12 @@ class Message:
         self.subject = self.message.get('Subject')
         self.content = self.extract_text()
 
-    def get_maildir(self, **kwargs):
-        user = kwargs.get('user', self.user)
-        folder = kwargs.get('folder', [self.folder])
-        path = get_maildir_path(user, folder)
+    def get_maildir(self, *folders):
+        path = get_maildir_path(self.user, folders=[*folders])
         return mailbox.Maildir(path)
 
     def get_path(self):
-        return get_maildir_path(self.user, [self.folder], self.message.get_subdir(), self.filename, self.message.get_info())
+        return get_maildir_path(self.user, self.folder, self.message.get_subdir(), self.filename, self.message.get_info())
 
     def get_flags(self):
         return self.message.get_flags()
@@ -95,19 +93,17 @@ class Message:
         self.maildir = self.get_maildir()
 
     def mark_as_processed(self, **kwargs: str):
-        folder = kwargs.get('folder', [self.folder])
+        folder = kwargs.get('folder', self.folder)
         get_maildir_path(self.user, folders=folder)
         if folder != self.folder:
             old_maildir = self.get_maildir()
-            new_maildir = self.get_maildir(folder=folder)
-            new_message = new_maildir.add(self.message)
-            old_maildir.remove(self.message)
-            self = self.__init__(self.user, folder, self.filename, new_message)
-        new_message = self.message
-        new_message.set_subdir('cur')
+            old_maildir.remove(self.filename)
+            self.folder = folder
+            self.maildir = self.get_maildir(folder=folder)
+            self.filename = self.maildir.add(self.message)
+        new_message = self.message.set_subdir('cur')
         self.maildir.update([(self.filename, new_message)])
         self.message = new_message
-        self.maildir = self.get_maildir()
         self.set_flags(Flags.GISTED)
 
     # Convert HTML email into plaintext to save on OpenAI tokens
@@ -150,7 +146,7 @@ class Maildir:
     def get_folders(self):
         return self.current_folder.list_folders()
 
-    def set_folder(self, foldername=None):
+    def set_folder(self, foldername: str=None):
         if foldername in self.get_folders():
             self.path = get_maildir_path(self.user, [foldername])
             self.current_folder = self.current_folder.get_folder(foldername)
@@ -184,8 +180,8 @@ class Maildir:
 
     def get_messages(self):
         try:
-            foldername = self.path.strip('/').split('/')[-1].strip('.')
-            return [Message(self.user, foldername, message[0], message[1]) for message in self.current_folder.items()]
+            folders = [folder.strip('.') for folder in self.path.strip('/').split('/')]
+            return [Message(self.user, folders, message[0], message[1]) for message in self.current_folder.items()]
         except FileNotFoundError:
             return []
 
