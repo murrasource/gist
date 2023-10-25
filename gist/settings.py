@@ -150,11 +150,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom settings for GIST
 DEFAULT_FOLDERS = [
     "Personal", 
-    "Order Updates", 
-    "Invoices & Bills", 
-    "MFA & Security Alerts", 
+    "Orders", 
+    "Invoices", 
+    "Security", 
     "Marketing", 
-    "Subscribed Newsletters", 
+    "Newsletters", 
     "Spam", 
     "Other"
 ]
