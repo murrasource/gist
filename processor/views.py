@@ -9,13 +9,14 @@ from processor.tasks import process_new_message
 
 @api_view(['POST'])
 def new_message_api(request: Request):
-    event = request.POST.get('event')
-    if event == 'MessageNew':
-        email_address: str = request.POST.get('to') if '<' not in request.POST.get('to') else request.POST.get('to').split('<')[1].strip('>')
+    data = request.data
+    if data.get('event') == 'MessageNew':
+        email_address: str = data.get('to') if '<' not in data.get('to') else data.get('to').split('<')[1].strip('>')
         user: str = email_address.split('@')[0]
-        folder: str = request.POST.get('folder')
-        uid: int = int(request.POST.get('uid'))
-        uidvalidity: str = str(request.POST.get('uidvalidity'))
+        folder: str = data.get('folder')
+        uid: int = int(data.get('uid'))
+        uidvalidity: str = str(data.get('uidvalidity'))
+        print(f'Queueing new message -- user: {user}, folder: {folder}, uid: {uid}, uidvalidity: {uidvalidity}')
         process_new_message.apply_async(args=(user, folder, uid, uidvalidity), countdown=30)
         return JsonResponse({'received': True})
     return JsonResponse({'received': False})
