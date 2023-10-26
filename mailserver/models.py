@@ -58,7 +58,7 @@ class Account(models.Model):
             crontab=schedule,
             name=f'Gist report schedule for {self.virtual_user.email} - {schedule.id}',
             task='gist.tasks.send_gist_report',
-            args=[str(self.id)]
+            kwargs={"account_id": str(self.id)}
         )
         self.report_schedule = report_schedule
 
