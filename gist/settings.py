@@ -86,7 +86,7 @@ DATABASES = {
 
 
 CELERY_BROKER_URL = env.str('CELERY_BROKER_URL')
-CELERY_RESULT_BACKEND = env.str('CELERY_RESULT_BACKEND')
+# CELERY_RESULT_BACKEND = env.str('CELERY_RESULT_BACKEND')
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
