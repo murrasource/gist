@@ -60,7 +60,7 @@ class Account(models.Model):
         )
         report_schedule.crontab = schedule
         report_schedule.task = 'processor.tasks.send_gist_report'
-        report_schedule.args = json.dumps(self.id)
+        report_schedule.args = json.dumps([self.id])
         report_schedule.enabled = True
         report_schedule.save()
         self.report_schedule = report_schedule
