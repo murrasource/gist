@@ -4,8 +4,11 @@ import django.utils.timezone as tz
 from processor.mail_utils import get_username_from_address
 from mailserver.models import Account
 from processor.models import EmailGist, EmailGistReport
+from pathlib import Path
 
 def get_report_path(report: EmailGistReport):
+    path = Path(f'{settings.GIST_REPORT_PREFIX}/{get_username_from_address(report.smtp_to)}/{settings.GIST_REPORT_FOLDER}/{report.generated}')
+    path.parent.mkdir(parents=True, exist_ok=True)
     return f'{settings.GIST_REPORT_PREFIX}/{get_username_from_address(report.smtp_to)}/{settings.GIST_REPORT_FOLDER}/{report.generated}'
 
 def write_report_email(report: EmailGistReport):
