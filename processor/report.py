@@ -19,7 +19,7 @@ def write_report_email(report: EmailGistReport):
                 <td>{gist.sender}</td>
                 <td>{gist.gist}</td>
             </tr>
-        ''' for gist in report.gists
+        ''' for gist in report.gists.all()
     ]
     html = f'''
         <html>
