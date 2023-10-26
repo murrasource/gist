@@ -3,6 +3,7 @@ from django.contrib.auth.models import User, AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from django_celery_beat.models import PeriodicTask, CrontabSchedule
+import json
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password, **extra_fields):
@@ -55,11 +56,12 @@ class Account(models.Model):
             month_of_year=MoY,
         )
         report_schedule, _ = PeriodicTask.objects.get_or_create(
-            crontab=schedule,
-            name=f'Gist report schedule for {self.virtual_user.email} - {schedule.id}',
-            task='gist.tasks.send_gist_report',
-            kwargs={"account_id": str(self.id)}
+            name=f'Gist report schedule for {self.virtual_user.email}'
         )
+        report_schedule.crontab = schedule
+        report_schedule.task = 'gist.tasks.send_gist_report'
+        report_schedule.args = json.dumps(self.id)
+        report_schedule.save()
         self.report_schedule = report_schedule
 
     class Meta:
