@@ -17,6 +17,7 @@ psycopg2-binary = "*"
 whitenoise = "*"
 markdown = "*"
 django-celery-beat = "*"
+pika = "*"
 
 [dev-packages]
 
