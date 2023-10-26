@@ -47,8 +47,8 @@ def create_report_email(account: Account, gists: [EmailGist]):
         account=account,
         smtp_to=account.report_email,
         location=settings.GIST_REPORT_PREFIX,
-        emails=gists
     )
+    report.emails.set(gists)
     report.location = write_report_email(report)
     report.save()
     write_report_email(report)
