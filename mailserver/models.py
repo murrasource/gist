@@ -59,7 +59,7 @@ class Account(models.Model):
             name=f'Gist report schedule for {self.virtual_user.email}'
         )
         report_schedule.crontab = schedule
-        report_schedule.task = 'gist.tasks.send_gist_report'
+        report_schedule.task = 'processor.tasks.send_gist_report'
         report_schedule.args = json.dumps(self.id)
         report_schedule.save()
         self.report_schedule = report_schedule

@@ -123,6 +123,7 @@ AUTH_USER_MODEL = 'mailserver.User'
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'America/Chicago'
+CELERY_TIMEZONE = 'America/Chicago'
 
 USE_I18N = True
 
