@@ -48,8 +48,8 @@ def create_report_email(account: Account, gists: [EmailGist]):
         smtp_to=account.report_email,
         location=settings.GIST_REPORT_PREFIX,
     )
-    gist_qs = EmailGist.objects.filter(pk__in=[gist.id for gist in gists])
-    report.emails.set(gist_qs)
+    for gist in gists:
+        report.emails.add(gist)
     report.location = write_report_email(report)
     report.save()
     write_report_email(report)
