@@ -51,7 +51,7 @@ def create_report_email(account: Account, gists: [EmailGist]):
     for gist in gists:
         report.gists.add(gist)
         report.emails.add(gist.email)
-    report.location = write_report_email(report)
+    report.location = get_report_path(report)
     report.save()
     write_report_email(report)
     return report

@@ -172,7 +172,7 @@ OPENAI_USER_PROMPT = "Categorize and summarize this email: \n\n"
 
 GIST_REPORT_SENDER = 'gist@gist.email'
 GIST_REPORT_PREFIX = '/var/vmail/gist.email'
-GIST_REPORT_FOLDER = 'gistemailreports'
+GIST_REPORT_FOLDER = 'reports'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'my.gist.email'
