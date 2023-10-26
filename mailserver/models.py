@@ -46,9 +46,9 @@ class Account(models.Model):
     report_settings = models.JSONField(blank=True, null=True)
     report_schedule = models.OneToOneField(PeriodicTask, related_name='account', on_delete=models.CASCADE, blank=True, null=True)
 
-    def set_report_schedule(self, min: str = '0', hour: str = '12', DoW: str = '*', DoM: str = '*', MoY: str = '*'):
+    def set_report_schedule(self, minute: str = '0', hour: str = '12', DoW: str = '*', DoM: str = '*', MoY: str = '*'):
         schedule, _ = CrontabSchedule.objects.get_or_create(
-            minute=min,
+            minute=minute,
             hour=hour,
             day_of_week=DoW,
             day_of_month=DoM,
@@ -58,7 +58,7 @@ class Account(models.Model):
             crontab=schedule,
             name=f'Gist report schedule for {self.virtual_user.email} - {schedule.id}',
             task='gist.tasks.send_gist_report',
-            args=(self.id,)
+            args=[str(self.id)]
         )
         self.report_schedule = report_schedule
 

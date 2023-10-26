@@ -23,8 +23,8 @@ def process_new_message(user: str, folder: str, uid: int, uidvalidity: str):
             report(gist.account, [gist])
 
 @shared_task
-def send_gist_report(account_id: int):
-    account = Account.objects.get(id=account_id)
+def send_gist_report(account_id):
+    account = Account.objects.get(id=int(account_id))
     if account.report_email and not settings.DEBUG:
         gists = [gist for gist in account.gists if gist.reports.count < 1 or not gist.complete]
         report(account, gists)
