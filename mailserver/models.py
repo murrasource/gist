@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User, AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
+from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password, **extra_fields):
@@ -41,11 +42,25 @@ class User(AbstractUser):
 class Account(models.Model):
     user            = models.OneToOneField(User, on_delete=models.CASCADE, related_name="account")
     dob             = models.DateField(null=True)
-    report_email    = models.EmailField(null=True)
-    report_settings = models.JSONField(null=True)
+    report_email    = models.EmailField(blank=True, null=True)
+    report_settings = models.JSONField(blank=True, null=True)
+    report_schedule = models.OneToOneField(PeriodicTask, related_name='account', on_delete=models.CASCADE, blank=True, null=True)
 
-    def get_report_destination(self):
-        return self.report_settings.get('send_to')
+    def set_report_schedule(self, min: str = '0', hour: str = '12', DoW: str = '*', DoM: str = '*', MoY: str = '*'):
+        schedule, _ = CrontabSchedule.objects.get_or_create(
+            minute=min,
+            hour=hour,
+            day_of_week=DoW,
+            day_of_month=DoM,
+            month_of_year=MoY,
+        )
+        report_schedule, _ = PeriodicTask.objects.get_or_create(
+            crontab=schedule,
+            name=f'Gist report schedule for {self.user.get_full_name()}',
+            task='gist.tasks.send_gist_report',
+            args=(self.id,)
+        )
+        self.report_schedule = report_schedule
 
     class Meta:
         db_table = "gist_accounts"

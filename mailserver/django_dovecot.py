@@ -50,6 +50,7 @@ def on_user_init(sender, **kwargs):
         jist_domain = VirtualDomain.objects.get_or_create(name='jist.email')[0]
         jist_domain.save()
         account = Account.objects.get_or_create(user=user)[0]
+        account.set_report_schedule()
         account.save()
         django_password = user.password
         vu = VirtualUser.objects.create(account=account, domain=gist_domain, email=user.email, password=password_dovecot_format(django_password)) if created else VirtualUser.objects.get(account=account)

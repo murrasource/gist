@@ -39,7 +39,7 @@ def get_maildir_path(user: str, folders: [str] = [], subdir: str = None, filenam
     if os.path.exists(base):
         return base
     else:
-        print(f'File does not exist: {base}')
+        print(f'File does not exist: "{base}"')
         raise InvalidMailPathException
 
 # Flags for messages (standard + GISTED & DELTE)
@@ -198,6 +198,16 @@ class Maildir:
             else:
                 print(f'No file with name {filename} exists.')
                 raise InvalidMailPathException
+        except:
+            raise InvalidMailPathException
+        
+    def get_uid(self, filename: str):
+        try:
+            uids = self.read_uidlist()
+            for uid in uids.items():
+                if filename in uid[1]:
+                    return uid[0]
+            raise InvalidMailPathException
         except:
             raise InvalidMailPathException
 

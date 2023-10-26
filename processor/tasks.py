@@ -4,7 +4,6 @@ from mailserver.models import Account, VirtualUser
 from processor import mail_utils
 from processor.gist import generate_email_gist
 from processor.report import report
-import time
 
 @shared_task
 def process_new_message(user: str, folder: str, uid: int, uidvalidity: str):
@@ -24,7 +23,8 @@ def process_new_message(user: str, folder: str, uid: int, uidvalidity: str):
             report(gist.account, [gist])
 
 @shared_task
-def send_daily_gist_report(account: Account):
+def send_gist_report(account_id: int):
+    account = Account.objects.get(id=account_id)
     if account.report_email and not settings.DEBUG:
         gists = [gist for gist in account.gists if gist.reports.count < 1 or not gist.complete]
         report(account, gists)
