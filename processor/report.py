@@ -38,7 +38,7 @@ def write_report_email(report: EmailGistReport):
                 </table>
             </body>
         </html>'''
-    with open(report.location, 'w+') as content:
+    with open(report.location, 'a+') as content:
         content.write(html)
         content.close()
 
