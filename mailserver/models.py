@@ -56,7 +56,7 @@ class Account(models.Model):
         )
         report_schedule, _ = PeriodicTask.objects.get_or_create(
             crontab=schedule,
-            name=f'Gist report schedule for {self.virtual_user.email}',
+            name=f'Gist report schedule for {self.virtual_user.email} - {schedule.id}',
             task='gist.tasks.send_gist_report',
             args=(self.id,)
         )
