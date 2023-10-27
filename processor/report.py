@@ -35,7 +35,7 @@ def create_report_email(account: Account, gists: [EmailGist]):
 
 def send_report_email(report: EmailGistReport):
     with open(report.location, 'r') as content:
-        subject = f'GIST Report for {tz.now().date()}' if len(report.gists.all()) > 1 else report.gists.first().summary
+        subject = f'GIST Report for {tz.now().date()}' if len(report.gists.all()) > 1 else report.gists.first().gist
         html_content = content.read()
         text_content = strip_tags(html_content)
         email_from = settings.EMAIL_HOST_USER
