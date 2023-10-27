@@ -44,7 +44,7 @@ def get_functions_json(user: str):
                     },
                     "summary": {
                         "type": "string",
-                        "description": "A few word summary of the content in the email. This is NOT the subject line, but the most concise and actionable summary that can be conveyed in less than a sentence."
+                        "description": "A few word summary of the content in the email. This is NOT the subject line, but the most concise and actionable summary that can be conveyed in less than a sentence. If there is a multi-factor auth code, make sure this is included in the summary."
                     }
                 }
             }

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>GIST Email Report</title>
+    </head>
+    <body>
+        <table>
+            <tr>
+                <th>Complete</th>
+                <th>Category</th>
+                <th>Sender</th>
+                <th>Gist</th>
+            </tr>
+            {% for gist in gists %}
+                <tr>
+                    {% if gist.complete %}
+                        <td>{{ u'\u2714' }}</td>
+                    {% else %}
+                        <td></td>
+                    {% endif %}
+                        <td>{gist.category}</td>
+                        <td>{gist.sender}</td>
+                        <td>{gist.gist}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>
