@@ -61,7 +61,7 @@ class Message:
         self.filename = filename
         self.message = message
         self.maildir = self.get_maildir()
-        self.to: str = self.message.get('To') if '<' not in self.message.get('To') else self.message.get('To').split('<')[1].strip('>')
+        self.to: str = self.message.get('Delivered-To')
         self.sender: str = self.message.get('From') if '<' not in self.message.get('From') else self.message.get('From').split('<')[1].strip('>')
         self.subject = self.message.get('Subject')
         self.content = self.extract_text()
@@ -220,6 +220,7 @@ class Maildir:
 
 # Find the message reported by `push.lua` push notification
 def get_message(user: str, folder: str, uid: int, uidvalidity: str):
+    user = get_username_from_address(user)
     mdir = Maildir(user)
     mdir.set_folder(folder)
     if mdir.get_uidvailidity() == uidvalidity:

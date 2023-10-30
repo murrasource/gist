@@ -9,7 +9,7 @@ from processor.report import report
 def process_new_message(user: str, folder: str, uid: int, uidvalidity: str):
     print(f'Processing new message -- user: {user}, folder: {folder}, uid: {uid}, uidvalidity: {uidvalidity}')
     message = mail_utils.get_message(user, folder, uid, uidvalidity)
-    user: VirtualUser = mail_utils.get_virtual_user_from_address(message.to)
+    user: VirtualUser = VirtualUser.objects.get(email=user)
     if message.has_flag(mail_utils.Flags.GISTED):
         print(f'Message with uid {uid} for user {user} already processed.')
         return
