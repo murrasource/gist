@@ -43,7 +43,7 @@ function dovecot_lua_notify_event_message_new(context, event)
     local status = maildir:status(dovecot.storage.STATUS_RECENT, dovecot.storage.STATUS_UNSEEN, dovecot.storage.STATUS_MESSAGES)
     maildir:free()
     table.insert(context.messages, {
-        user = context.user
+        user = context.user,
         to = event.to,
         uidvalidity = event.uid_validity,
         uid = event.uid,
