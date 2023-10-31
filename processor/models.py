@@ -1,8 +1,10 @@
 from django.db import models
 from django.conf import settings
 from mailserver.models import *
+import uuid
 
 class Email(models.Model):
+    uuid        = models.UUIDField(null=False, default=uuid.uuid4, unique=True)
     account     = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="emails")
     smtp_to     = models.ForeignKey(VirtualUser, on_delete=models.CASCADE, related_name="emails")
     smtp_from   = models.CharField(max_length=100)
@@ -11,6 +13,7 @@ class Email(models.Model):
     processed   = models.DateTimeField(null=True, default=None)
     
 class EmailGist(models.Model):
+    uuid        = models.UUIDField(null=False, default=uuid.uuid4, unique=True)
     account     = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="gists")
     email       = models.OneToOneField(Email, on_delete=models.CASCADE, related_name="gist")
     complete    = models.BooleanField(default=True)
@@ -20,6 +23,7 @@ class EmailGist(models.Model):
     gist        = models.TextField(max_length=500)
 
 class EmailGistReport(models.Model):
+    uuid        = models.UUIDField(null=False, default=uuid.uuid4, unique=True)
     account     = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="reports")
     smtp_to     = models.EmailField()
     location    = models.FilePathField(path=settings.GIST_REPORT_PREFIX)

@@ -9,9 +9,9 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
 def get_report_path(report: EmailGistReport):
-    path = Path(f'{settings.GIST_REPORT_PREFIX}/{get_username_from_address(report.smtp_to)}/{settings.GIST_REPORT_FOLDER}/{report.generated}')
+    path = Path(f'{settings.GIST_REPORT_PREFIX}/{get_username_from_address(report.smtp_to)}/{settings.GIST_REPORT_FOLDER}/{report.uuid}')
     path.parent.mkdir(parents=True, exist_ok=True)
-    return f'{settings.GIST_REPORT_PREFIX}/{get_username_from_address(report.smtp_to)}/{settings.GIST_REPORT_FOLDER}/{report.generated}'
+    return f'{settings.GIST_REPORT_PREFIX}/{get_username_from_address(report.smtp_to)}/{settings.GIST_REPORT_FOLDER}/{report.uuid}'
 
 def write_report_email(report: EmailGistReport):
     html = render_to_string('report.html', {'gists': report.gists.all()})
@@ -43,6 +43,7 @@ def send_report_email(report: EmailGistReport):
         send_mail( subject, text_content, email_from, recipient_list, html_message=html_content )
         content.close()
         report.sent = tz.now()
+        report.save()
 
 def report(account: Account, gists: [EmailGist]):
     if account.report_email:
