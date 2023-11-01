@@ -28,8 +28,8 @@ def get_virtual_user_from_address(address: str):
 def get_maildir_path(user: str, folders: [str] = [], subdir: str = None, filename: str = None, info: str = None):
     base = f'{settings.MAILDIR_PREFIX}/{user}/{settings.MAILDIR_NAME}/'
     if folders:
-        for folder in folders:
-            base += f'.{folder}/'
+        for i in range(0, len(folders)):
+            base += f'.{folders[i]}/'
     if subdir:
         base += f'{subdir}/'
     if filename:
