@@ -9,7 +9,7 @@ import openai
 # Get the classification options based on user's inbox folders
 def get_classification_options(user: str):
     maildir = Maildir(user)
-    maildir.set_folder('INBOX')
+    maildir.set_folder(foldername='INBOX')
     return ['.'.join(folder.split('.')[1:]) for folder in maildir.get_folders() if folder.startswith('INBOX.')]
 
 # Create the prompts to feed to OpenAI

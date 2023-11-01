@@ -20,7 +20,7 @@ class Email(models.Model):
         filename = parts[-1]
         maildir = mail_utils.Maildir(user)
         for folder in folders:
-            maildir.set_folder(folder)
+            maildir.set_folder(foldername=folder)
         return maildir.get_message(filename=filename)
 
     def view(self):

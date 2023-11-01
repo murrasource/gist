@@ -72,7 +72,7 @@ class Message:
         maildir = Maildir(self.user)
         folders = [*folders] if folders else self.folder
         for folder in folders:
-            maildir.set_folder(folder)
+            maildir.set_folder(foldername=folder)
         return maildir
 
     def get_path(self):
@@ -166,9 +166,9 @@ class Maildir:
     def get_folders(self):
         return self.current_folder.list_folders()
 
-    def set_folder(self, foldername: str=None):
+    def set_folder(self, foldername: str = None):
         if foldername in self.get_folders():
-            self.folder += foldername
+            self.folder += [foldername]
             self.current_folder = self.current_folder.get_folder(foldername)
             self.path = get_maildir_path(self.user, self.folder)
             self.get_foldername()
@@ -241,7 +241,7 @@ class Maildir:
 def get_message(user: str, folder: str, uid: int, uidvalidity: str):
     user = get_username_from_address(user)
     mdir = Maildir(user)
-    mdir.set_folder(folder)
+    mdir.set_folder(foldername=folder)
     if mdir.get_uidvailidity() == uidvalidity:
         return mdir.get_message(uid=uid)
     else:
