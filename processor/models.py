@@ -27,9 +27,17 @@ class Email(models.Model):
         message = self.get_message()
         return message.get_url_view()
     
-    def respond(self):
+    def reply(self):
         message = self.get_message()
-        return message.get_url_respond()
+        return message.get_url_reply()
+        
+    def replyall(self):
+        message = self.get_message()
+        return message.get_url_replyall()
+        
+    def forward(self):
+        message = self.get_message()
+        return message.get_url_forward()
     
 class EmailGist(models.Model):
     uuid        = models.UUIDField(null=False, default=uuid.uuid4, unique=True)

@@ -132,10 +132,20 @@ class Message:
         folders = '%2F'.join(self.folder)
         return f'https://my.gist.email/?_task=mail&_action=show&_uid={uid}&_mbox={folders}'
     
-    def get_url_respond(self):
+    def get_url_reply(self):
         uid = self.maildir.get_uid(self.filename)
         folders = '%2F'.join(self.folder)
         return f'https://my.gist.email/?_task=mail&_reply_uid={uid}&_mbox={folders}&_action=compose'    
+    
+    def get_url_replyall(self):
+        uid = self.maildir.get_uid(self.filename)
+        folders = '%2F'.join(self.folder)
+        return f'https://my.gist.email/?_task=mail&_reply_uid={uid}&_mbox={folders}&_action=compose&_all=all'
+    
+    def get_url_forward(self):
+        uid = self.maildir.get_uid(self.filename)
+        folders = '%2F'.join(self.folder)
+        return f'https://my.gist.email/?_task=mail&_forward_uid={uid}&_mbox={folders}&_action=compose'
 
 
 # Utility to explore and manipulate Maildir
