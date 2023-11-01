@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from mailserver.models import *
+from processor import mail_utils
 import uuid
 
 class Email(models.Model):
@@ -11,6 +12,10 @@ class Email(models.Model):
     location    = models.FilePathField(path=settings.MAILDIR_PREFIX, max_length=1000)
     received    = models.DateTimeField(auto_now_add=True)
     processed   = models.DateTimeField(null=True, default=None)
+
+    def get_webmail_path(self):
+        message = mail_utils.Message(self.location)
+        return message.webmail_path()
     
 class EmailGist(models.Model):
     uuid        = models.UUIDField(null=False, default=uuid.uuid4, unique=True)

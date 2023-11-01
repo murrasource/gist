@@ -33,6 +33,6 @@ def toggle_completion_api(request: Request, report_uuid: UUID, gist_uuid: UUID):
         return JsonResponse({'message': f'Status set to {gist.complete}'})
     return JsonResponse({'message': f'Either the gist or report does not exist.'})
 
-def gist_report(request: Request, gist_uuid: UUID):
-    report = EmailGistReport.objects.get(uuid=gist_uuid)
-    return render('report.html', {'gists': report.gists.all()})
+def gist_report(request: Request, report_uuid: UUID):
+    report = EmailGistReport.objects.get(uuid=report_uuid)
+    return render(request, 'report.html', {'gists': report.gists.all()})

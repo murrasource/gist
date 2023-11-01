@@ -60,16 +60,31 @@ class Message:
         self.folder = folder
         self.filename = filename
         self.message = message
-        self.maildir = self.get_maildir()
+        self.maildir = self.get_maildir(*folder)
         self.to: str = self.message.get('Delivered-To')
         self.sender: str = self.message.get('From') if '<' not in self.message.get('From') else self.message.get('From').split('<')[1].strip('>')
         self.subject = self.message.get('Subject')
         self.content = self.extract_text()
+    
+    def __init__(self, path: str):        
+        self.user = path.removeprefix(settings.MAILDIR_PREFIX).strip('/').split('/')[0]
+        parts = [part.strip('.') for part in path.removeprefix(get_maildir_path(self.user)).strip('/').split('/')]
+        self.folder = parts[:-1]
+        self.filename = parts[-1]
+        self.maildir = self.get_maildir(*self.folder)
+        message = self.maildir.get_message(self.filename)
+        self.message = message.message
+        self.to: str = message.to
+        self.sender: str = message.sender
+        self.subject = message.subject
+        self.content = self.extract_text()
 
     def get_maildir(self, *folders):
+        maildir = Maildir(self.user)
         folders = [*folders] if folders else self.folder
-        path = get_maildir_path(self.user, folders=folders)
-        return mailbox.Maildir(path)
+        for folder in folders:
+            maildir.set_folder(folder)
+        return maildir
 
     def get_path(self):
         return get_maildir_path(self.user, self.folder, self.message.get_subdir(), self.filename, self.message.get_info())
@@ -89,7 +104,7 @@ class Message:
         else:
             for flag in flags:
                 updated_message.add_flag(flag)
-        self.maildir.update([(self.filename, updated_message)])
+        self.maildir.current_folder.update([(self.filename, updated_message)])
         self.message = updated_message
         self.maildir = self.get_maildir()
 
@@ -98,15 +113,15 @@ class Message:
         get_maildir_path(self.user, folders=folder)
         if folder != self.folder:
             old_maildir = self.get_maildir()
-            old_maildir.remove(self.filename)
+            old_maildir.current_folder.remove(self.filename)
             new_maildir = self.get_maildir(*folder)
-            filename = new_maildir.add(self.message)
+            filename = new_maildir.current_folder.add(self.message)
             self.filename = filename
             self.maildir = new_maildir
             self.folder = folder
         new_message = self.message
         new_message.set_subdir('cur')
-        self.maildir.update([(self.filename, new_message)])
+        self.maildir.current_folder.update([(self.filename, new_message)])
         self.message = new_message
         self.set_flags(Flags.GISTED)
 
@@ -122,6 +137,12 @@ class Message:
         if message.get('Content-Transfer-Encoding') == 'base64':
             payload = base64.b64decode(payload).decode()
         return converter.handle(payload)
+
+    def webmail_path(self):
+        uid = self.maildir.get_uid(self.filename)
+        folders = '%2F'.join(self.folder)
+        return f'https://my.gist.email/?_task=mail&_action=show&_uid={uid}&_mbox={folders}g'
+    
 
 # Utility to explore and manipulate Maildir
 class Maildir:
@@ -188,6 +209,17 @@ class Maildir:
             return [Message(self.user, folders, message[0], message[1]) for message in self.current_folder.items()]
         except FileNotFoundError:
             return []
+
+    def get_message(self, filename: str):
+        try:
+            folders = [folder.strip('.') for folder in self.path.removeprefix(self.root).strip('/').split('/')]
+            message = [Message(self.user, folders, message[0], message[1]) for message in self.current_folder.items() if filename in message[0]]
+            if message: 
+                return message[0]
+            else:
+                raise InvalidMailPathException
+        except:
+            raise InvalidMailPathException
 
     def get_message(self, uid: int):
         try:
