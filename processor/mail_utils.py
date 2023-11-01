@@ -69,7 +69,7 @@ class Message:
     def __init__(self, path: str):        
         self.user = path.removeprefix(settings.MAILDIR_PREFIX).strip('/').split('/')[0]
         parts = [part.strip('.') for part in path.removeprefix(get_maildir_path(self.user)).strip('/').split('/')]
-        self.folder = parts[:-1]
+        self.folder = [folder.strip('.').split('.')[-1] for folder in parts[:-2]]
         self.filename = parts[-1]
         self.maildir = self.get_maildir(*self.folder)
         message = self.maildir.get_message(self.filename)
