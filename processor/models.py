@@ -13,9 +13,23 @@ class Email(models.Model):
     received    = models.DateTimeField(auto_now_add=True)
     processed   = models.DateTimeField(null=True, default=None)
 
-    def get_webmail_path(self):
-        message = mail_utils.Message(self.location)
-        return message.webmail_path()
+    def get_message(self):
+        user = self.location.removeprefix(settings.MAILDIR_PREFIX).strip('/').split('/')[0]
+        parts = [part.strip('.') for part in self.location.removeprefix(mail_utils.get_maildir_path(user)).strip('/').split('/')]
+        folders = [folder.strip('.')[-1] for folder in parts[:-2]]
+        filename = parts[-1]
+        maildir = mail_utils.Maildir(user)
+        for folder in folders:
+            maildir.set_folder(folder)
+        return maildir.get_message(filename=filename)
+
+    def view(self):
+        message = self.get_message()
+        return message.get_url_view()
+    
+    def respond(self):
+        message = self.get_message()
+        return message.get_url_respond()
     
 class EmailGist(models.Model):
     uuid        = models.UUIDField(null=False, default=uuid.uuid4, unique=True)

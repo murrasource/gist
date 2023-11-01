@@ -28,8 +28,8 @@ def get_virtual_user_from_address(address: str):
 def get_maildir_path(user: str, folders: [str] = [], subdir: str = None, filename: str = None, info: str = None):
     base = f'{settings.MAILDIR_PREFIX}/{user}/{settings.MAILDIR_NAME}/'
     if folders:
-        for i in range(0, len(folders)):
-            base += f'.{".".join(folders[0:i+1])}/'
+        for folder in folders:
+            base += f'.{folder}/'
     if subdir:
         base += f'{subdir}/'
     if filename:
@@ -42,6 +42,7 @@ def get_maildir_path(user: str, folders: [str] = [], subdir: str = None, filenam
         print(f'File does not exist: "{base}"')
         raise InvalidMailPathException
 
+
 # Flags for messages (standard + GISTED & DELTE)
 class Flags(Enum):
     DRAFT   = 'D'
@@ -52,6 +53,7 @@ class Flags(Enum):
     TRASHED = 'T'
     GISTED  = 'G'
     DELETE  = 'X'
+
 
 # Utility to explore and manipulate messages
 class Message:
@@ -64,19 +66,6 @@ class Message:
         self.to: str = self.message.get('Delivered-To')
         self.sender: str = self.message.get('From') if '<' not in self.message.get('From') else self.message.get('From').split('<')[1].strip('>')
         self.subject = self.message.get('Subject')
-        self.content = self.extract_text()
-    
-    def __init__(self, path: str):        
-        self.user = path.removeprefix(settings.MAILDIR_PREFIX).strip('/').split('/')[0]
-        parts = [part.strip('.') for part in path.removeprefix(get_maildir_path(self.user)).strip('/').split('/')]
-        self.folder = [folder.strip('.').split('.')[-1] for folder in parts[:-2]]
-        self.filename = parts[-1]
-        self.maildir = self.get_maildir(*self.folder)
-        message = self.maildir.get_message(self.filename)
-        self.message = message.message
-        self.to: str = message.to
-        self.sender: str = message.sender
-        self.subject = message.subject
         self.content = self.extract_text()
 
     def get_maildir(self, *folders):
@@ -138,11 +127,16 @@ class Message:
             payload = base64.b64decode(payload).decode()
         return converter.handle(payload)
 
-    def webmail_path(self):
+    def get_url_view(self):
         uid = self.maildir.get_uid(self.filename)
         folders = '%2F'.join(self.folder)
-        return f'https://my.gist.email/?_task=mail&_action=show&_uid={uid}&_mbox={folders}g'
+        return f'https://my.gist.email/?_task=mail&_action=show&_uid={uid}&_mbox={folders}'
     
+    def get_url_respond(self):
+        uid = self.maildir.get_uid(self.filename)
+        folders = '%2F'.join(self.folder)
+        return f'https://my.gist.email/?_task=mail&_reply_uid={uid}&_mbox={folders}&_action=compose'    
+
 
 # Utility to explore and manipulate Maildir
 class Maildir:
@@ -151,6 +145,7 @@ class Maildir:
             self.user: str = user
             self.root: str = get_maildir_path(user)
             self.path: str = self.root
+            self.folder: list = []
             self.foldername: str = self.get_foldername()
             self.maildir: mailbox.Maildir = mailbox.Maildir(self.path)
             self.current_folder = self.maildir
@@ -173,10 +168,12 @@ class Maildir:
 
     def set_folder(self, foldername: str=None):
         if foldername in self.get_folders():
-            self.path = get_maildir_path(self.user, [foldername])
+            self.folder += foldername
             self.current_folder = self.current_folder.get_folder(foldername)
+            self.path = get_maildir_path(self.user, self.folder)
             self.get_foldername()
         elif foldername is None:
+            self.folder = []
             self.path = get_maildir_path(self.user)
             self.current_folder = self.maildir
             self.get_foldername()
@@ -210,20 +207,9 @@ class Maildir:
         except FileNotFoundError:
             return []
 
-    def get_message(self, filename: str):
+    def get_message(self, uid: int = None, filename: str = None):
         try:
-            folders = [folder.strip('.') for folder in self.path.removeprefix(self.root).strip('/').split('/')]
-            message = [Message(self.user, folders, message[0], message[1]) for message in self.current_folder.items() if filename in message[0]]
-            if message: 
-                return message[0]
-            else:
-                raise InvalidMailPathException
-        except:
-            raise InvalidMailPathException
-
-    def get_message(self, uid: int):
-        try:
-            filename = self.read_uidlist()[int(uid)]
+            filename = self.read_uidlist()[int(uid)] if not filename and uid else filename
             message = [option for option in self.get_messages() if filename in option.filename]
             if message:
                 return message[0]
@@ -250,12 +236,13 @@ class Maildir:
                 return f'{self.path}/{filename}'
         raise InvalidMailPathException
 
+
 # Find the message reported by `push.lua` push notification
 def get_message(user: str, folder: str, uid: int, uidvalidity: str):
     user = get_username_from_address(user)
     mdir = Maildir(user)
     mdir.set_folder(folder)
     if mdir.get_uidvailidity() == uidvalidity:
-        return mdir.get_message(uid)
+        return mdir.get_message(uid=uid)
     else:
         raise InvalidMailPathException
