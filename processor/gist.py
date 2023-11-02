@@ -85,7 +85,7 @@ def generate_email_gist(user: VirtualUser, message: Message):
 
         # Update email and message to processed state
         email.processed = tz.now()
-        message.mark_as_processed(folder=['INBOX', function_args.get("category")])
+        message.mark_as_processed(folder=['INBOX', f'INBOX.{function_args.get("category")}'])
         email.location = message.get_path()
         email.save()
 
