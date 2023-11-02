@@ -54,8 +54,8 @@ def get_functions_json(user: str):
 # Condense emails into the proper token limit
 def condense_email_content(content: str):
     tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
-    system_tokens = tokenizer.encode(settings.OPENAI_SYSTEM_TUNER)
-    user_prompt_tokens = tokenizer.encode(settings.OPENAI_USER_PROMPT)
+    system_tokens = len(tokenizer.encode(settings.OPENAI_SYSTEM_TUNER))
+    user_prompt_tokens = len(tokenizer.encode(settings.OPENAI_USER_PROMPT))
     max_content_tokens = settings.OPENAI_TOKEN_LIMIT - system_tokens - user_prompt_tokens
     content_tokens = tokenizer.encode(content)
     if len(content_tokens) > max_content_tokens:
