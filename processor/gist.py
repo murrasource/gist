@@ -4,7 +4,7 @@ from processor.mail_utils import Maildir, Message, get_username_from_address
 from mailserver.models import VirtualUser
 from processor.models import Email, EmailGist
 import json
-import openai
+import openai, tiktoken
 
 # Get the classification options based on user's inbox folders
 def get_classification_options(user: str):
@@ -15,8 +15,8 @@ def get_classification_options(user: str):
 # Create the prompts to feed to OpenAI
 def get_messages_json(email: str):
     return [
-        {   "role": "system",  "content": settings.OPENAI_SYSTEM_TUNER          },
-        {   "role": "user",    "content": settings.OPENAI_USER_PROMPT + email   }
+        {   "role": "system",  "content": settings.OPENAI_SYSTEM_TUNER                                  },
+        {   "role": "user",    "content": settings.OPENAI_USER_PROMPT + condense_email_content(email)   }
     ]
 
 # Create the function structure to 
@@ -51,6 +51,18 @@ def get_functions_json(user: str):
         }
     ]
 
+# Condense emails into the proper token limit
+def condense_email_content(content: str):
+    tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
+    system_tokens = tokenizer.encode(settings.OPENAI_SYSTEM_TUNER)
+    user_prompt_tokens = tokenizer.encode(settings.OPENAI_USER_PROMPT)
+    max_content_tokens = settings.OPENAI_TOKEN_LIMIT - system_tokens - user_prompt_tokens
+    content_tokens = tokenizer.encode(content)
+    if len(content_tokens) > max_content_tokens:
+        content_tokens = content_tokens[max_content_tokens - 1]
+        return tokenizer.decode(content_tokens)
+    return content
+
 # Feed OpenAI the email and function, and then generate the gist
 def generate_email_gist(user: VirtualUser, message: Message):
     # Create new Email object
@@ -63,9 +75,9 @@ def generate_email_gist(user: VirtualUser, message: Message):
 
     email.save()
 
-    if settings.OPEN_AI_API_KEY and not settings.DEBUG:
+    if settings.OPENAI_API_KEY and not settings.DEBUG:
         # Set API key
-        openai.api_key = settings.OPEN_AI_API_KEY
+        openai.api_key = settings.OPENAI_API_KEY
 
         # Have ChatGPT give output in structured manner
         response = openai.ChatCompletion.create(

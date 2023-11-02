@@ -18,6 +18,7 @@ whitenoise = "*"
 markdown = "*"
 django-celery-beat = "*"
 pika = "*"
+tiktoken = "*"
 
 [dev-packages]
 
