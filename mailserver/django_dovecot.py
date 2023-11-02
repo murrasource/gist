@@ -69,7 +69,7 @@ def on_user_delete(sender, **kwargs):
     if user and not settings.DEBUG:
         maildir = Maildir(get_username_from_address(user.email))
         for folder in maildir.get_folders():
-            maildir.set_folder(folder)
+            maildir.set_folder(foldername=folder)
             for message in maildir.get_messages():
                 message.set_flags(Flags.DELETE)
 

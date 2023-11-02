@@ -49,3 +49,4 @@ def report(account: Account, gists: [EmailGist]):
     if account.report_email:
         report = create_report_email(account, gists)
         send_report_email(report)
+        print(f'Report {report.uuid} send to {account.report_email}')

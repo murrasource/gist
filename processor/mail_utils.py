@@ -4,7 +4,8 @@ from enum import Enum
 from django.conf import settings
 import os
 import base64
-from mailserver.models import VirtualUser
+from pathlib import Path
+from mailserver.models import Account, VirtualUser
 
 
 # Custom exception
@@ -152,6 +153,9 @@ class Message:
 class Maildir:
     def __init__(self, user: str):
         try:
+            if VirtualUser.objects.filter(email=f'{user}@gist.email'):
+                path = Path(f'{settings.GIST_REPORT_PREFIX}/{user}/{settings.GIST_REPORT_FOLDER}/')
+                path.parent.mkdir(parents=True, exist_ok=True)
             self.user: str = user
             self.root: str = get_maildir_path(user)
             self.path: str = self.root

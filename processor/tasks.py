@@ -24,10 +24,21 @@ def process_new_message(user: str, folder: str, uid: int, uidvalidity: str):
 
 @shared_task
 def send_gist_report(account_id):
-    print(account_id)
-
     account = Account.objects.get(id=account_id)
     if account.report_email and not settings.DEBUG:
         gists = [gist for gist in account.gists.all() if gist.reports.count() < 1 or not gist.complete]
         report(account, gists)
 
+@shared_task
+def process_ungisted_emails():
+    for account in Account.objects.all():
+        user = mail_utils.get_username_from_address(account.virtual_user.email)
+        maildir = mail_utils.Maildir(user)
+        maildir.set_folder('INBOX')
+        messages = [message for message in maildir.get_messages() if not message.has_flag(mail_utils.Flags.GISTED)]
+        for message in messages:
+            folder = 'INBOX'
+            uid = message.maildir.get_uid(message.filename)
+            uidvalidity = message.maildir.get_uidvailidity()
+            print(f'Queueing new message -- user: {user}, folder: {folder}, uid: {uid}, uidvalidity: {uidvalidity}')
+            process_new_message.apply_async(args=(user, folder, uid, uidvalidity), countdown=60)
