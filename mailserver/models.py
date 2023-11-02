@@ -55,9 +55,6 @@ class Account(models.Model):
             day_of_month=DoM,
             month_of_year=MoY,
         )
-        report_schedule, _ = PeriodicTask.objects.get_or_create(
-            name=f'Gist report schedule for {self.user.email}'
-        )
         if PeriodicTask.objects.filter(name=f'Gist report schedule for {self.user.email}'):
             report_schedule = PeriodicTask.objects.get(name=f'Gist report schedule for {self.user.email}')
             report_schedule.crontab = schedule
