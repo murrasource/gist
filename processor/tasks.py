@@ -40,5 +40,5 @@ def process_ungisted_emails():
             folder = 'INBOX'
             uid = message.maildir.get_uid(message.filename)
             uidvalidity = message.maildir.get_uidvailidity()
-            print(f'Queueing new message -- user: {user}, folder: {folder}, uid: {uid}, uidvalidity: {uidvalidity}')
-            process_new_message.apply_async(args=(user, folder, uid, uidvalidity), countdown=60)
+            print(f'Queueing new message -- user: {account.virtual_user.email}, folder: {folder}, uid: {uid}, uidvalidity: {uidvalidity}')
+            process_new_message.apply_async(args=(account.virtual_user.email, folder, uid, uidvalidity), countdown=60)
