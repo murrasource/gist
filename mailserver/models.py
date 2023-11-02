@@ -56,7 +56,7 @@ class Account(models.Model):
             month_of_year=MoY,
         )
         report_schedule, _ = PeriodicTask.objects.get_or_create(
-            name=f'Gist report schedule for {self.virtual_user.email}'
+            name=f'Gist report schedule for {self.user.email}'
         )
         report_schedule.crontab = schedule
         report_schedule.task = 'processor.tasks.send_gist_report'
