@@ -6,7 +6,6 @@ from mailserver.models import Account
 from processor.models import EmailGist, EmailGistReport
 from pathlib import Path
 from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 
 def get_report_path(report: EmailGistReport):
     path = Path(f'{settings.GIST_REPORT_PREFIX}/{get_username_from_address(report.account.user.email)}/{settings.GIST_REPORT_FOLDER}/{report.uuid}')
@@ -37,7 +36,7 @@ def send_report_email(report: EmailGistReport):
     with open(report.location, 'r') as content:
         subject = f'GIST Report for {tz.now().date()}' if len(report.gists.all()) > 1 else report.gists.first().gist
         html_content = content.read()
-        text_content = strip_tags(html_content)
+        text_content = f'You can view your GIST report at "https://gist.email/processor/gist-report/{report.uuid}".'
         email_from = settings.EMAIL_HOST_USER
         recipient_list = [report.smtp_to, ]
         send_mail( subject, text_content, email_from, recipient_list, html_message=html_content )
