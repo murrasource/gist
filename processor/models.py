@@ -16,8 +16,8 @@ class Email(models.Model):
     def get_message(self):
         user = self.location.removeprefix(settings.MAILDIR_PREFIX).strip('/').split('/')[0]
         parts = [part.strip('.') for part in self.location.removeprefix(mail_utils.get_maildir_path(user)).strip('/').split('/')]
-        folders = [folder.strip('.')[-1] for folder in parts[:-2]]
-        filename = parts[-1]
+        folders = parts[:-2]
+        filename = parts[-1].split(':')[0]
         maildir = mail_utils.Maildir(user)
         for folder in folders:
             maildir.set_folder(foldername=folder)

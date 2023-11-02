@@ -17,6 +17,7 @@
                 <th>Gist</th>
             </tr>
             {% for gist in gists %}
+            <a href="{{ gist.email.view|safe }}">
                 <tr>
                     {% if gist.complete %}
                         <td>&#x2713;</td>
@@ -27,6 +28,7 @@
                         <td>{{ gist.sender }}</td>
                         <td>{{ gist.gist }}</td>
                 </tr>
+            </a>
             {% endfor %}
         </table>
     </body>
