@@ -198,7 +198,7 @@ class Maildir:
         for folder in folders:
             if folder not in self.get_folders():
                 self.current_folder.add_folder(f'{self.foldername}.{folder}')
-                print(folder, end='')
+                print(folder)
 
     def read_uidlist(self):
         messages = {}
