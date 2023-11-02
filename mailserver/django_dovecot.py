@@ -60,7 +60,7 @@ def on_user_init(sender, **kwargs):
         va.save()
     if created and not settings.DEBUG:
         maildir = Maildir(user.email.split('@')[0])
-        maildir.add_folders(*[f'INBOX.{folder}' for folder in settings.DEFAULT_FOLDERS])
+        maildir.add_folders(*settings.DEFAULT_FOLDERS)
 
 # Flag user's emails for deletion when User is deleted
 @receiver(post_delete, sender=User)
