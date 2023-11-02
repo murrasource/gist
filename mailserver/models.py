@@ -58,10 +58,20 @@ class Account(models.Model):
         report_schedule, _ = PeriodicTask.objects.get_or_create(
             name=f'Gist report schedule for {self.user.email}'
         )
-        report_schedule.crontab = schedule
-        report_schedule.task = 'processor.tasks.send_gist_report'
-        report_schedule.args = json.dumps([self.id])
-        report_schedule.enabled = True
+        if PeriodicTask.objects.filter(name=f'Gist report schedule for {self.user.email}'):
+            report_schedule = PeriodicTask.objects.get(name=f'Gist report schedule for {self.user.email}')
+            report_schedule.crontab = schedule
+            report_schedule.task = 'processor.tasks.send_gist_report'
+            report_schedule.args = json.dumps([self.id])
+            report_schedule.enabled = True
+        else:
+            report_schedule = PeriodicTask.objects.create(
+                name=f'Gist report schedule for {self.user.email}',
+                crontab = schedule,
+                task = 'processor.tasks.send_gist_report',
+                args = json.dumps([self.id]),
+                enabled = True
+            )
         report_schedule.save()
         self.report_schedule = report_schedule
 
