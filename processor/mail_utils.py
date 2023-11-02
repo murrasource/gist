@@ -155,8 +155,7 @@ class Maildir:
         try:
             if VirtualUser.objects.filter(email=f'{user}@gist.email'):
                 path = Path(f'{settings.GIST_REPORT_PREFIX}/{user}/{settings.MAILDIR_NAME}/')
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.mkdir()
+                path.mkdir(parents=True, exist_ok=True)
             self.user: str = user
             self.root: str = get_maildir_path(user)
             self.path: str = self.root
