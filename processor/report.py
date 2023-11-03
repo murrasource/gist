@@ -11,7 +11,6 @@ import os
 def get_report_path(report: EmailGistReport):
     path = Path(f'{settings.GIST_REPORT_PREFIX}/{get_username_from_address(report.account.user.email)}/{settings.GIST_REPORT_FOLDER}/{report.uuid}')
     path.parent.mkdir(parents=True, exist_ok=True)
-    os.chown(f'{settings.GIST_REPORT_PREFIX}/{get_username_from_address(report.account.user.email)}/{settings.GIST_REPORT_FOLDER}/{report.uuid}', 5000, 5000)
     return f'{settings.GIST_REPORT_PREFIX}/{get_username_from_address(report.account.user.email)}/{settings.GIST_REPORT_FOLDER}/{report.uuid}'
 
 def write_report_email(report: EmailGistReport):
