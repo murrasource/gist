@@ -5,6 +5,7 @@ from mailserver.models import User, Account, VirtualDomain, VirtualUser, Virtual
 from processor.mail_utils import Maildir, Flags, get_username_from_address
 from django.conf import settings
 from pathlib import Path
+import os
 
 # Format a bcrypt hash in the dovecot format
 def password_dovecot_format(hash: str):
@@ -63,8 +64,11 @@ def on_user_init(sender, **kwargs):
         maildir = Maildir(get_username_from_address(user.email))
         path = Path(f'{settings.GIST_REPORT_PREFIX}/{get_username_from_address(user.email)}/{settings.MAILDIR_NAME}/.INBOX')
         path.mkdir(parents=True, exist_ok=True)
+        os.chown(f'{settings.GIST_REPORT_PREFIX}/{get_username_from_address(user.email)}/{settings.MAILDIR_NAME}/.INBOX', 5000, 5000)
         maildir.set_folder('INBOX')
         maildir.add_folders(*settings.DEFAULT_FOLDERS)
+        for folder in settings.DEFAULT_FOLDERS:
+            os.chown(f'{settings.GIST_REPORT_PREFIX}/{get_username_from_address(user.email)}/{settings.MAILDIR_NAME}/.INBOX/.INBOX.{folder}', 5000, 5000)
 
 # Flag user's emails for deletion when User is deleted
 @receiver(post_delete, sender=User)
