@@ -21,8 +21,9 @@ def get_messages_json(message: Message):
         },
         {   
             "role": "user",
-            "content": settings.OPENAI_USER_PROMPT + \
+            "content": \
                 f"\n FROM: {message.sender} \n" + \
+                f"\n SUBJECT: {message.subject} \n" + \
                 condense_email_content(message.content)
         }
     ]
@@ -44,7 +45,7 @@ def get_functions_json(user: str):
                     "category": {
                         "type": "string",
                         "enum": get_classification_options(user),
-                        "description": "How the email's content is classified."
+                        "description": "Which of these folders should the email be classified into?"
                     },
                     "sender": {
                         "type": "string",
@@ -52,7 +53,7 @@ def get_functions_json(user: str):
                     },
                     "summary": {
                         "type": "string",
-                        "description": "A few word summary of the content in the email. This is NOT the subject line, but the most concise and actionable summary that can be conveyed in less than a sentence. If there is a multi-factor auth code, make sure this is included in the summary."
+                        "description": "The most concise and actionable summary of the email that is just a few words long. If there is a multi-factor auth code, make sure this is included in the summary."
                     }
                 }
             }
