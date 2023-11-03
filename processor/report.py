@@ -29,18 +29,18 @@ def create_report_email(account: Account, gists: [EmailGist]):
         report.gists.add(gist)
         report.emails.add(gist.email)
     report.location = get_report_path(report)
+    report.subject = f'GIST Report for {tz.now().date()}' if len(report.gists.all()) > 1 else report.gists.first().gist
     report.save()
     write_report_email(report)
     return report
 
 def send_report_email(report: EmailGistReport):
     with open(report.location, 'r') as content:
-        subject = f'GIST Report for {tz.now().date()}' if len(report.gists.all()) > 1 else report.gists.first().gist
         html_content = content.read()
         text_content = f'You can view your GIST report at "https://gist.email/processor/gist-report/{report.uuid}".'
         email_from = settings.EMAIL_HOST_USER
         recipient_list = [report.smtp_to, ]
-        send_mail( subject, text_content, email_from, recipient_list, html_message=html_content )
+        send_mail( report.subject, text_content, email_from, recipient_list, html_message=html_content )
         content.close()
         report.sent = tz.now()
         report.save()

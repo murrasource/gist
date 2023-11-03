@@ -53,6 +53,7 @@ class EmailGistReport(models.Model):
     uuid        = models.UUIDField(null=False, default=uuid.uuid4, unique=True)
     account     = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="reports")
     smtp_to     = models.EmailField()
+    subject     = models.CharField(max_length=100, blank=True, default="GIST Report")
     location    = models.FilePathField(path=settings.GIST_REPORT_PREFIX)
     emails      = models.ManyToManyField(Email, related_name='reports')
     gists       = models.ManyToManyField(EmailGist, related_name='reports')

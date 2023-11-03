@@ -1,3 +1,4 @@
 vmail/*
-stash/*
+stash/demo
+stash/static
 *.pyc

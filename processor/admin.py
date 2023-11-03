@@ -11,4 +11,4 @@ class EmailGistAdmin(admin.ModelAdmin):
 
 @admin.register(EmailGistReport)
 class EmailGistReportAdmin(admin.ModelAdmin):
-    list_display = ['id', 'smtp_to', 'location', 'generated', 'sent']
+    list_display = ['id', 'smtp_to', 'subject', 'location', 'generated', 'sent']
