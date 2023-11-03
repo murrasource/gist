@@ -9,19 +9,55 @@
             th:first-child,td:first-child { padding-left: 0; }
             th:last-child,td:last-child { padding-right: 0; }
         </style>
-        <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
-        <link rel="stylesheet" href="{% static 'css/skeleton.css' %}">
+        <link rel="stylesheet" href="https://gist.email{% static 'css/normalize.css' %}">
+        <link rel="stylesheet" href="https://gist.email{% static 'css/skeleton.css' %}">
     </head>
     <body>
         <div class="section">
             <div class="container">
                 <div class="row">
                     <div class="one column">
-                        <img src="{% static 'img/gist.png' %}" width="100" />
+                        <img src="https://gist.email{% static 'img/gist.png' %}" width="100" />
                     </div>
                     <div class="ten offset-by-one columns">
                         <br>
                         <h2 class="value-multiplier">{{ report.subject }}</h2>
+                    </div>
+                </div>
+                <hr>
+                <br>
+                <div class="row">
+                    <div class="ten columns">
+                        <h4>Attention Needed</h4>
+                        <br>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th>Complete</th>
+                                    <th>Category</th>
+                                    <th>Sender</th>
+                                    <th>Gist</th>
+                                </tr>
+                                {% for gist in report.gists.all|dictsort:"complete" %}
+                                    {% if gist.category == folder and not gist.complete %}
+                                    <tr>
+                                        {% if gist.complete %}
+                                        <td>&#x2713;</td>
+                                        {% else %}
+                                        <td></td>
+                                        {% endif %}
+                                        <td>{{ gist.category }}</td>
+                                        <td>{{ gist.sender }}</td>
+                                        <td>
+                                            <a href="{{ gist.email.view|safe }}">
+                                                {{ gist.gist }}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 {% for folder in folders %}
@@ -34,19 +70,17 @@
                                 <tbody>
                                     <tr>
                                         <th>Complete</th>
-                                        <th>Category</th>
                                         <th>Sender</th>
                                         <th>Gist</th>
                                     </tr>
                                     {% for gist in report.gists.all|dictsort:"complete" %}
-                                        {% if gist.category == folder %}
+                                        {% if gist.category == folder and gist.complete %}
                                         <tr>
                                             {% if gist.complete %}
                                             <td>&#x2713;</td>
                                             {% else %}
                                             <td></td>
                                             {% endif %}
-                                            <td>{{ gist.category }}</td>
                                             <td>{{ gist.sender }}</td>
                                             <td>
                                                 <a href="{{ gist.email.view|safe }}">
@@ -60,7 +94,6 @@
                             </table>
                         </div>
                     </div>
-                    <hr>
                 {% endfor %}
             </div>
         </div>
