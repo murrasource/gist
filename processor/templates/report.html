@@ -39,7 +39,7 @@
                                     <th>Gist</th>
                                 </tr>
                                 {% for gist in report.gists.all|dictsort:"complete" %}
-                                    {% if gist.category == folder and not gist.complete %}
+                                    {% if not gist.complete %}
                                     <tr>
                                         {% if gist.complete %}
                                         <td>&#x2713;</td>
@@ -60,12 +60,12 @@
                         </table>
                     </div>
                 </div>
+                <hr>
                 {% for folder in folders %}
                     <br>
                     <div class="row">
                         <div class="ten columns">
                             <h4>{{ folder }}</h4>
-                            <br>
                             <table>
                                 <tbody>
                                     <tr>
