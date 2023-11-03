@@ -242,7 +242,7 @@ class Maildir:
                     return uid[0]
             raise InvalidMailPathException
         except:
-            print(f'Could not find file: self.path/{filename}')
+            print(f'Could not find file: {self.path}/{filename}')
             raise InvalidMailPathException
 
     def get_message_path(self, filename: str):
