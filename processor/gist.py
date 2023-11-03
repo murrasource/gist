@@ -49,7 +49,7 @@ def get_functions_json(user: str):
                     },
                     "sender": {
                         "type": "string",
-                        "description": "Display name of the sender. If there is a concern over spoofing, add ' (Suspicious)' at the end."
+                        "description": "Common name of the sender, not their email address, if possible. If there is a concern over spoofing, add ' (Suspicious)' at the end."
                     },
                     "summary": {
                         "type": "string",
