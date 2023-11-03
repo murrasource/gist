@@ -40,7 +40,7 @@ def get_functions_json(user: str):
                 "properties": {
                     "action": {
                         "type": "boolean",
-                        "description": "True if the user needs to take action on this email, else false."
+                        "description": "True if the email should receive user attention, else false."
                     },
                     "category": {
                         "type": "string",

@@ -24,36 +24,44 @@
                         <h2 class="value-multiplier">{{ report.subject }}</h2>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="ten columns">
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <th>Complete</th>
-                                    <th>Category</th>
-                                    <th>Sender</th>
-                                    <th>Gist</th>
-                                </tr>
-                                {% for gist in gists %}
-                                <tr>
-                                    {% if gist.complete %}
-                                    <td>&#x2713;</td>
-                                    {% else %}
-                                    <td></td>
-                                    {% endif %}
-                                    <td>{{ gist.category }}</td>
-                                    <td>{{ gist.sender }}</td>
-                                    <td>
-                                        <a href="{{ gist.email.view|safe }}">
-                                            {{ gist.gist }}
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                {% for folder in folders %}
+                    <br>
+                    <div class="row">
+                        <div class="ten columns">
+                            <h4>{{ folder }}</h4>
+                            <br>
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <th>Complete</th>
+                                        <th>Category</th>
+                                        <th>Sender</th>
+                                        <th>Gist</th>
+                                    </tr>
+                                    {% for gist in report.gists.all|dictsort:"complete" %}
+                                        {% if gist.category == folder %}
+                                        <tr>
+                                            {% if gist.complete %}
+                                            <td>&#x2713;</td>
+                                            {% else %}
+                                            <td></td>
+                                            {% endif %}
+                                            <td>{{ gist.category }}</td>
+                                            <td>{{ gist.sender }}</td>
+                                            <td>
+                                                <a href="{{ gist.email.view|safe }}">
+                                                    {{ gist.gist }}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                    <hr>
+                {% endfor %}
             </div>
         </div>
     </body>

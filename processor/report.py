@@ -14,7 +14,7 @@ def get_report_path(report: EmailGistReport):
     return f'{settings.GIST_REPORT_PREFIX}/{get_username_from_address(report.account.user.email)}/{settings.GIST_REPORT_FOLDER}/{report.uuid}'
 
 def write_report_email(report: EmailGistReport):
-    html = render_to_string('report.html', {'gists': report.gists.all().order_by('complete')})
+    html = render_to_string('report.html', {'report': report, 'folders': [gist.category for gist in report.gists.all()]})
     with open(report.location, 'a+') as content:
         content.write(html)
         content.close()
