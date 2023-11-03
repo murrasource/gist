@@ -21,14 +21,14 @@
                     </div>
                     <div class="ten offset-by-one columns">
                         <br>
-                        <h2 class="value-multiplier">{{ report.subject }}</h2>
+                        <h2>{{ report.subject }}</h2>
                     </div>
                 </div>
                 <hr>
                 <br>
                 <div class="row">
                     <div class="ten columns">
-                        <h2>Attention Needed</h2>
+                        <h3>Attention Needed</h3>
                         <br>
                         <table>
                             <tbody>
@@ -65,7 +65,7 @@
                     <br>
                     <div class="row">
                         <div class="ten columns">
-                            <h2>{{ folder }}</h2>
+                            <h3>{{ folder }}</h3>
                             <table>
                                 <tbody>
                                     <tr>
@@ -74,7 +74,7 @@
                                         <th>Gist</th>
                                     </tr>
                                     {% for gist in report.gists.all|dictsort:"complete" %}
-                                        {% if gist.category == folder and gist.complete %}
+                                        {% if gist.category == folder %}
                                         <tr>
                                             {% if gist.complete %}
                                             <td>&#x2713;</td>
