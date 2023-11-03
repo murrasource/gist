@@ -13,10 +13,18 @@ def get_classification_options(user: str):
     return ['.'.join(folder.split('.')[1:]) for folder in maildir.get_folders() if folder.startswith('INBOX.')]
 
 # Create the prompts to feed to OpenAI
-def get_messages_json(email: str):
+def get_messages_json(message: Message):
     return [
-        {   "role": "system",  "content": settings.OPENAI_SYSTEM_TUNER                                  },
-        {   "role": "user",    "content": settings.OPENAI_USER_PROMPT + condense_email_content(email)   }
+        {  
+            "role": "system",
+            "content": settings.OPENAI_SYSTEM_TUNER
+        },
+        {   
+            "role": "user",
+            "content": settings.OPENAI_USER_PROMPT + \
+                f"\n FROM: {message.sender} \n" + \
+                condense_email_content(message.content)
+        }
     ]
 
 # Create the function structure to 
@@ -79,7 +87,7 @@ def generate_email_gist(user: VirtualUser, message: Message):
         # Have ChatGPT give output in structured manner
         response = openai.ChatCompletion.create(
             model           = settings.OPENAI_LLM,
-            messages        = get_messages_json(message.content),
+            messages        = get_messages_json(message),
             functions       = get_functions_json(get_username_from_address(user.email)),
             function_call   = {"name": "generate_email_gist"},
         )
