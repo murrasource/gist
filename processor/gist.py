@@ -40,7 +40,7 @@ def get_functions_json(user: str):
                 "properties": {
                     "action": {
                         "type": "boolean",
-                        "description": "True if the email needs to receive user attention, else false."
+                        "description": "True if the email is something a human would actually need to review or is worthy of their time, else false."
                     },
                     "category": {
                         "type": "string",
@@ -49,7 +49,7 @@ def get_functions_json(user: str):
                     },
                     "sender": {
                         "type": "string",
-                        "description": "Common name of the sender, not their email address, if possible. If there is a concern over spoofing, add ' (Suspicious)' at the end."
+                        "description": "Extract the name of the sender. For example, 'no-reply@fabletics.com' would be 'Fabletics'."
                     },
                     "summary": {
                         "type": "string",
