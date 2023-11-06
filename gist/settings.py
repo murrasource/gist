@@ -168,8 +168,8 @@ MAILDIR_NAME = 'Maildir'
 
 OPENAI_API_KEY = "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"
 OPENAI_LLM = "gpt-3.5-turbo-0613"
-OPENAI_SYSTEM_TUNER = "Your job is to cut down on the number of emails a user needs to sort through, so be judicious in what you determine needs action. You are creating a briefing on this email so the user shouldn't have to read the full email."
-OPENAI_USER_PROMPT = "Categorize and summarize this email: \n\n"
+OPENAI_SYSTEM_TUNER = "You are a secretary processing a user's emails. Be concise in generating the `summary` and conservative in setting `action` to True."
+OPENAI_USER_PROMPT = "Process this email: \n\n"
 OPENAI_TOKEN_LIMIT = 3500
 
 GIST_REPORT_SENDER = 'gist@gist.email'
