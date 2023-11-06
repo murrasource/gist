@@ -36,16 +36,16 @@ def get_functions_json(user: str):
             "description": "Construct a summary report of an email using the content category, sender, and a few word summary",
             "parameters": {
                 "type": "object",
-                "required": ["action", "category", "sender", "summary"],
+                "required": ["action", "priority", "category", "sender", "summary"],
                 "properties": {
                     "action": {
                         "type": "boolean",
-                        "description": "`true` if a human would perceive this email as crucial information, else `false`."
+                        "description": "`true` if a human would perceive this email as having crucial information, else `false`."
                     },
                     "priority": {
                         "type": "string",
-                        "enum": ["Highest", "Important", "Normal"],
-                        "description": "If a human would perceive this email as crucial information, determine how much the user should prioritize repsonding to this task. Else set to `null`."
+                        "enum": ["Highest", "Important", "Normal", "Superfluous"],
+                        "description": "Consider the importance and time sensitivity of the content to determine how the user should prioritize this email."
                     },
                     "category": {
                         "type": "string",
@@ -54,7 +54,7 @@ def get_functions_json(user: str):
                     },
                     "sender": {
                         "type": "string",
-                        "description": "Extract the name of the sender. For example, 'no-reply@fabletics.com' would be 'Fabletics'."
+                        "description": "Extract the name of the sender. For example, 'melanie@fabletics.com' would be 'Melanie from Fabletics' but 'marketing@fabletics.com' would be 'Fabletics'."
                     },
                     "summary": {
                         "type": "string",
