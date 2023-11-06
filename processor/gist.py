@@ -40,12 +40,12 @@ def get_functions_json(user: str):
                 "properties": {
                     "action": {
                         "type": "boolean",
-                        "description": "`false` if a human would be likely to classify this email as unimportant, else `true`."
+                        "description": "`false` if a human would be likely to view this email as unimportant, else `true`."
                     },
                     "priority": {
                         "type": "string",
                         "enum": ["Highest", "Important", "Normal"],
-                        "description": "If a human would be likely to classify this email as unimportant, set to `null`. Else, determine how much the user should prioritize repsonding to this task."
+                        "description": "If a human would be likely to view this email as unimportant, set to `null`. Else, determine how much the user should prioritize repsonding to this task."
                     },
                     "category": {
                         "type": "string",
@@ -74,6 +74,29 @@ def condense_email_content(content: str):
         return tokenizer.decode(content_tokens)
     return content
 
+def query_openai(user: VirtualUser, message: Message):
+    # Set API key
+    openai.api_key = settings.OPENAI_API_KEY
+
+    # Have ChatGPT give output in structured manner
+    response = openai.ChatCompletion.create(
+        model           = settings.OPENAI_LLM,
+        messages        = get_messages_json(message),
+        functions       = get_functions_json(get_username_from_address(user.email)),
+        function_call   = {"name": "generate_email_gist"},
+    )
+
+    # Get the response content
+    response_message = response["choices"][0]["message"]
+
+    # Select the arguments we need
+    function_args = json.loads(response_message["function_call"]["arguments"])
+
+    print('OpenAI response: ', function_args)
+
+    return function_args
+
+
 # Feed OpenAI the email and function, and then generate the gist
 def generate_email_gist(user: VirtualUser, message: Message):
     # Create new Email object
@@ -83,28 +106,11 @@ def generate_email_gist(user: VirtualUser, message: Message):
             smtp_from   = message.sender,
             location    = message.get_path()
     )[0]
-
     email.save()
 
     if settings.OPENAI_API_KEY and not settings.DEBUG:
-        # Set API key
-        openai.api_key = settings.OPENAI_API_KEY
-
-        # Have ChatGPT give output in structured manner
-        response = openai.ChatCompletion.create(
-            model           = settings.OPENAI_LLM,
-            messages        = get_messages_json(message),
-            functions       = get_functions_json(get_username_from_address(user.email)),
-            function_call   = {"name": "generate_email_gist"},
-        )
-
-        # Get the response content
-        response_message = response["choices"][0]["message"]
-
-        # Select the arguments we need
-        function_args = json.loads(response_message["function_call"]["arguments"])
-        
-        print('OpenAI response: ', function_args)
+        # Query OpenAI to get arguments
+        function_args = query_openai(user, message)
 
         # Use the arguments to generate our gist
         gist = EmailGist.objects.create(
