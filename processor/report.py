@@ -46,7 +46,7 @@ def send_report_email(report: EmailGistReport):
         report.save()
 
 def report(account: Account, gists: [EmailGist]):
-    if account.report_email:
+    if account.report_email and gists:
         report = create_report_email(account, gists)
         send_report_email(report)
         print(f'Report {report.uuid} send to {account.report_email}')
