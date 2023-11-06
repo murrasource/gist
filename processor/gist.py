@@ -40,12 +40,12 @@ def get_functions_json(user: str):
                 "properties": {
                     "action": {
                         "type": "boolean",
-                        "description": "True if the email is something a busy person would actually need to review or is worthy of their time, else false."
+                        "description": "`false` if a human would be likely to classify this email as unimportant, else `true`."
                     },
                     "priority": {
                         "type": "string",
                         "enum": ["Highest", "Important", "Normal"],
-                        "description": "If action is True, specify its priority level. Else, set priority to null."
+                        "description": "If a human would be likely to classify this email as unimportant, set to `null`. Else, determine how much the user should prioritize repsonding to this task."
                     },
                     "category": {
                         "type": "string",
