@@ -44,7 +44,7 @@ def get_functions_json(user: str):
                     },
                     "priority": {
                         "type": "string",
-                        "enum": ["Urgent", "Important", "Normal"],
+                        "enum": ["Highest", "Important", "Normal"],
                         "description": "If action is True, specify its priority level. Else, set priority to null."
                     },
                     "category": {
