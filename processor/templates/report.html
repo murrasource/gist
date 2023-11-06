@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>GIST Email Report</title>
+        <title>{{ report.subject }}</title>
         <style>
             th,td { padding: 12px 15px;text-align: left;border-bottom: 1px solid #E1E1E1; }
             th:first-child,td:first-child { padding-left: 0; }
@@ -28,24 +28,18 @@
                 <br>
                 <div class="row">
                     <div class="ten columns">
-                        <h3>Attention Needed</h3>
-                        <br>
                         <table>
                             <tbody>
                                 <tr>
-                                    <th>Complete</th>
+                                    <th>Priority</th>
                                     <th>Category</th>
                                     <th>Sender</th>
                                     <th>Gist</th>
                                 </tr>
-                                {% for gist in report.gists.all|dictsort:"complete" %}
+                                {% for gist in report.gists.all|dictsort:"priority" %}
                                     {% if not gist.complete %}
                                     <tr>
-                                        {% if gist.complete %}
-                                        <td>&#x2713;</td>
-                                        {% else %}
-                                        <td></td>
-                                        {% endif %}
+                                        <td>{{ gist.priority }}</td>
                                         <td>{{ gist.category }}</td>
                                         <td>{{ gist.sender }}</td>
                                         <td>
@@ -60,41 +54,6 @@
                         </table>
                     </div>
                 </div>
-                <hr>
-                {% for folder in folders %}
-                    <br>
-                    <div class="row">
-                        <div class="ten columns">
-                            <h3>{{ folder }}</h3>
-                            <table>
-                                <tbody>
-                                    <tr>
-                                        <th>Complete</th>
-                                        <th>Sender</th>
-                                        <th>Gist</th>
-                                    </tr>
-                                    {% for gist in report.gists.all|dictsort:"complete" %}
-                                        {% if gist.category == folder %}
-                                        <tr>
-                                            {% if gist.complete %}
-                                            <td>&#x2713;</td>
-                                            {% else %}
-                                            <td></td>
-                                            {% endif %}
-                                            <td>{{ gist.sender }}</td>
-                                            <td>
-                                                <a href="{{ gist.email.view|safe }}">
-                                                    {{ gist.gist }}
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        {% endif %}
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                {% endfor %}
             </div>
         </div>
     </body>

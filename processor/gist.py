@@ -42,6 +42,11 @@ def get_functions_json(user: str):
                         "type": "boolean",
                         "description": "True if the email is something a busy person would actually need to review or is worthy of their time, else false."
                     },
+                    "priority": {
+                        "type": "string",
+                        "enum": ["Urgent", "Important", "Normal"],
+                        "description": "If action is True, specify its priority level. Else, set priority to null."
+                    },
                     "category": {
                         "type": "string",
                         "enum": get_classification_options(user),
@@ -101,23 +106,23 @@ def generate_email_gist(user: VirtualUser, message: Message):
         
         print('OpenAI response: ', function_args)
 
-        # Update email and message to processed state
-        email.processed = tz.now()
-        message.mark_as_processed(folder=['INBOX', f'INBOX.{function_args.get("category")}'])
-        email.location = message.get_path()
-        email.save()
-
         # Use the arguments to generate our gist
         gist = EmailGist.objects.create(
             account=user.account,
             email=email,
             complete=(not function_args.get("action")),
+            priority=function_args.get("priority"),
             action=function_args.get("action"),
             category=function_args.get("category"),
             sender=function_args.get("sender"),
             gist=function_args.get("summary")
         )
-
         gist.save()
+
+        # Update email and message to processed state
+        email.processed = tz.now()
+        message.mark_as_processed(folder=['INBOX', f'INBOX.{function_args.get("category")}'])
+        email.location = message.get_path()
+        email.save()
 
         return gist

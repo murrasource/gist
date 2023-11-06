@@ -2,3 +2,4 @@ vmail/*
 stash/demo
 stash/static
 *.pyc
+.DS_Store

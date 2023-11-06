@@ -45,6 +45,7 @@ class EmailGist(models.Model):
     email       = models.OneToOneField(Email, on_delete=models.CASCADE, related_name="gist")
     complete    = models.BooleanField(default=True)
     action      = models.BooleanField(default=False)
+    priority    = models.CharField(max_length=15, null=True)
     category    = models.CharField(max_length=50)
     sender      = models.CharField(max_length=100)
     gist        = models.TextField(max_length=500)

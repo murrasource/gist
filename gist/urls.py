@@ -16,10 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from portal.urls import url_patterns as portal_urls
 from processor.urls import url_patterns as processor_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
-    path('processor/', include(processor_urls))
+    path('/', include(portal_urls)),
+    path('processor/', include(processor_urls)),
 ]
