@@ -36,7 +36,7 @@
                                     <th>Sender</th>
                                     <th>Gist</th>
                                 </tr>
-                                {% for gist in report.gists.all|dictsort:"priority" %}
+                                {% for gist in report.gists.all %}
                                     {% if not gist.complete %}
                                     <tr>
                                         <td>{{ gist.priority }}</td>

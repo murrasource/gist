@@ -40,12 +40,12 @@ def get_functions_json(user: str):
                 "properties": {
                     "action": {
                         "type": "boolean",
-                        "description": "`false` if a human would be likely to view this email as unimportant, else `true`."
+                        "description": "`true` if a human would perceive this email as crucial information, else `false`."
                     },
                     "priority": {
                         "type": "string",
                         "enum": ["Highest", "Important", "Normal"],
-                        "description": "If a human would be likely to view this email as unimportant, set to `null`. Else, determine how much the user should prioritize repsonding to this task."
+                        "description": "If a human would perceive this email as crucial information, determine how much the user should prioritize repsonding to this task. Else set to `null`."
                     },
                     "category": {
                         "type": "string",
@@ -95,7 +95,6 @@ def query_openai(user: VirtualUser, message: Message):
     print('OpenAI response: ', function_args)
 
     return function_args
-
 
 # Feed OpenAI the email and function, and then generate the gist
 def generate_email_gist(user: VirtualUser, message: Message):
