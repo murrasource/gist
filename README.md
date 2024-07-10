@@ -2,6 +2,7 @@
 
 Welcome to GIST!
 
+The gist of GIST is that, when deployed alongside an email server, LLMs are used to read, categorize, and prioritize the emails you receive. At intervals you decide, you will get a GIST report that contains a brief summary of each email, whether action is needed, and a link to the full text.
 
 ## Folders and Files that Belong Here
 |   Folder/File     |   Purpose                                                             |
